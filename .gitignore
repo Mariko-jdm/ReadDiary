@@ -1,0 +1,41 @@
+# gradle
+.gradle/
+build/
+
+# local config
+local.properties
+
+# android studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# keystore
+*.jks
+*.keystore
+
+# logs
+*.log
+
+# temp files
+*.tmp
+*.swp
+*~
+
+# mac
+.DS_Store
+
+# windows
+Thumbs.db
+
+# kotlin
+.kotlin/
+
+# build outputs
+app/build/
+captures/
+
+# generated files
+.externalNativeBuild/
+.cxx/
