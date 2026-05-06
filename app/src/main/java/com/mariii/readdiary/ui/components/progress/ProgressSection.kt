@@ -1,6 +1,7 @@
 package com.mariii.readdiary.ui.components.progress
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -13,6 +14,8 @@ import androidx.compose.ui.draw.clip
 import com.mariii.readdiary.ui.theme.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -34,12 +37,27 @@ fun ProgressSection(
             .padding(Dimens.paddingMedium)
     ) {
 
-        // Выпадающий список
-        Box {
-            TextButton(onClick = { expanded = true }) {
+        // ---------- Период ----------
+        Box(modifier = Modifier.fillMaxWidth()) {
+
+            Row(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .clickable { expanded = true },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = "Статистика $selectedPeriod",
+                    style = AppTypography.titleMedium,
                     color = OnSurface
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = OnSurface
                 )
             }
 
@@ -64,36 +82,49 @@ fun ProgressSection(
             }
         }
 
-        Spacer(modifier = Modifier.height(Dimens.paddingMedium))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // График
+        // ---------- График ----------
         SimpleBarChart()
 
-        Spacer(modifier = Modifier.height(Dimens.paddingMedium))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // 📚 Статистика
-        Text("Всего книг прочитано: $booksRead", color = OnSurface)
-        Text("Всего страниц прочитано: $pagesRead", color = OnSurface)
+        // ---------- Метрики ----------
+        Text(
+            text = "Всего книг прочитано: $booksRead",
+            style = AppTypography.bodyMedium,
+            color = OnSurface
+        )
 
-        Spacer(modifier = Modifier.height(Dimens.paddingMedium))
+        Spacer(modifier = Modifier.height(4.dp))
 
-        // Цель
+        Text(
+            text = "Всего страниц прочитано: $pagesRead",
+            style = AppTypography.bodyMedium,
+            color = OnSurface
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // ---------- Цель ----------
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Цель: $goal книг",
                 modifier = Modifier.weight(1f),
+                style = AppTypography.bodyMedium,
                 color = OnSurface
             )
 
-            IconButton(onClick = { /* TODO */ }) {
+            IconButton(onClick = {}) {
                 Icon(Icons.Default.Edit, contentDescription = null)
             }
         }
 
         Text(
             text = "Цель выполнена на ${(goalProgress * 100).toInt()}%",
+            style = AppTypography.bodyMedium,
             color = OnSurface
         )
 
@@ -102,26 +133,27 @@ fun ProgressSection(
         LinearProgressIndicator(
             progress = { goalProgress },
             color = Primary,
-            trackColor = Outline,
+            trackColor = Outline.copy(alpha = 0.3f),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp)
                 .clip(RoundedCornerShape(4.dp))
         )
 
-        Spacer(modifier = Modifier.height(Dimens.paddingMedium))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // ⏰ Напоминание
+        // ---------- Напоминание ----------
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Напоминание: $reminderText",
                 modifier = Modifier.weight(1f),
+                style = AppTypography.bodyMedium,
                 color = OnSurface
             )
 
-            IconButton(onClick = { /* TODO */ }) {
+            IconButton(onClick = {}) {
                 Icon(Icons.Default.Edit, contentDescription = null)
             }
         }
@@ -130,23 +162,41 @@ fun ProgressSection(
 
 @Composable
 fun SimpleBarChart() {
-    val data = listOf(10, 40, 25, 60, 30, 50, 70)
+
+    val dataPrimary = listOf(10, 30, 20, 50, 40, 60, 70)
+    val dataSecondary = listOf(20, 20, 40, 30, 60, 70, 50)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp),
+            .height(100.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom
     ) {
-        data.forEach { value ->
-            Box(
-                modifier = Modifier
-                    .width(12.dp)
-                    .fillMaxHeight(value / 100f)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(Primary)
-            )
+
+        dataPrimary.indices.forEach { i ->
+
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+
+                Box(
+                    modifier = Modifier
+                        .width(10.dp)
+                        .fillMaxHeight(dataPrimary[i] / 100f)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color.DarkGray)
+                )
+
+                Box(
+                    modifier = Modifier
+                        .width(10.dp)
+                        .fillMaxHeight(dataSecondary[i] / 100f)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Primary)
+                )
+            }
         }
     }
 }

@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-
 import com.mariii.readdiary.navigation.Screen
+
 
 @Composable
 fun BottomBar(navController: NavController) {

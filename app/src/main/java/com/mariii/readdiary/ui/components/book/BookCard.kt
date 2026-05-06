@@ -32,7 +32,7 @@ fun BookCard(
             .fillMaxWidth()
 
             .clip(RoundedCornerShape(Dimens.cornerRadius))
-            .background(Background)
+            .background(Surface)
             .padding(Dimens.paddingMedium)
     ) {
 
@@ -97,7 +97,7 @@ fun BookCardHomePreview() {
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // кнопка с иконкой
+                // кнопка продолжения чтения
                 PrimaryButton(
                     text = "Продолжить",
                     onClick = {},
@@ -116,7 +116,7 @@ fun BookCardHomePreview() {
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // подчеркнутый текст
+                // кнопка добавления заметки
                 Text(
                     text = "Добавить заметку",
                     style = AppTypography.bodyMedium.copy(

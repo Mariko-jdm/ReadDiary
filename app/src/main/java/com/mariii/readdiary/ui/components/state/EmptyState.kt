@@ -16,12 +16,13 @@ import com.mariii.readdiary.ui.theme.*
 @Composable
 fun EmptyState(
     text: String,
-    buttonText: String,
-    onClick: () -> Unit
+    modifier: Modifier = Modifier,
+    buttonText: String? = null,
+    onClick: (() -> Unit)? = null
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
+            .fillMaxWidth()
             .padding(Dimens.paddingLarge),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -42,13 +43,17 @@ fun EmptyState(
             color = OnSurface.copy(alpha = 0.7f)
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        //  опциональная кнопка
+        if (buttonText != null && onClick != null) {
 
-        TextButton(onClick = onClick) {
-            Text(
-                text = buttonText,
-                color = Primary
-            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            TextButton(onClick = onClick) {
+                Text(
+                    text = buttonText,
+                    color = Primary
+                )
+            }
         }
     }
 }
