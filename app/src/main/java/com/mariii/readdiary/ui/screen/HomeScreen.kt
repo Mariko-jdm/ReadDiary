@@ -3,15 +3,26 @@
 package com.mariii.readdiary.ui.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,33 +32,37 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mariii.readdiary.R
+import com.mariii.readdiary.domain.model.Book
+import com.mariii.readdiary.domain.model.ReadingStatus
 import com.mariii.readdiary.navigation.Screen
 import com.mariii.readdiary.ui.components.book.BookCard
+import com.mariii.readdiary.ui.components.book.BookGrid
 import com.mariii.readdiary.ui.components.common.PrimaryButton
 import com.mariii.readdiary.ui.components.state.EmptyState
-import com.mariii.readdiary.ui.theme.*
-
-data class Book(
-    val id: Int,
-    val title: String,
-    val author: String,
-    val progress: String
-)
-
+import com.mariii.readdiary.ui.theme.AppTypography
+import com.mariii.readdiary.ui.theme.Background
+import com.mariii.readdiary.ui.theme.Dimens
+import com.mariii.readdiary.ui.theme.OnBackground
+import com.mariii.readdiary.ui.theme.OnButtonLight
+import com.mariii.readdiary.ui.theme.OnSurface
+import com.mariii.readdiary.ui.theme.PrimaryTransparent
+import com.mariii.readdiary.ui.theme.ReadDiaryTheme
+import com.mariii.readdiary.ui.theme.Surface
+import com.mariii.readdiary.ui.viewmodel.BookViewModel
 
 // -------------------------
 // основной экран (с навигацией)
 // -------------------------
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    viewModel: BookViewModel = viewModel()
+){
 
-    val books = listOf(
-        Book(1, "Название книги", "Автор", "130 из 300 стр. (35%)"),
-        Book(2, "Книга 2", "Автор", "50 из 200 стр."),
-        Book(3, "Книга 3", "Автор", "10 из 100 стр.")
-    )
+    val books = viewModel.books
 
     HomeScreenContent(
         books = books,
@@ -130,7 +145,7 @@ fun HomeScreenContent(
                             ) {
 
                                 Text(
-                                    text = book.progress,
+                                    text = book.progressText,
                                     style = AppTypography.bodyMedium,
                                     color = OnSurface
                                 )
@@ -194,29 +209,11 @@ fun HomeScreenContent(
                         )
 
                     } else {
-
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(3),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 400.dp)
-
-                        ) {
-
-                            items(books) { book ->
-                                Box(
-                                    modifier = Modifier
-                                        .aspectRatio(0.7f)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(SurfaceVariant)
-                                        .clickable {
-                                            onBookClick(book.id)
-                                        }
-                                )
-                            }
-                        }
+                        BookGrid(
+                            books = books,
+                            emptyText = "у вас пока нет книг",
+                            onBookClick = onBookClick
+                        )
                     }
                 }
             }
@@ -244,18 +241,21 @@ fun HomeScreenPreview_Empty() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HomeScreenPreview_WithData() {
+
+    val books = listOf(
+        Book(
+            id = 1,
+            title = "Вино из одуванчиков",
+            author = "Рэй Брэдбери",
+            totalPages = 300,
+            currentPage = 120,
+            status = ReadingStatus.READING
+        )
+    )
+
     ReadDiaryTheme {
         HomeScreenContent(
-            books = listOf(
-                Book(1, "Винo из одуванчиков", "Рэй Брэдбери", "120 из 300 стр. (40%)"),
-                Book(2, "Винo из одуванчиков", "Рэй Брэдбери", "120 из 300 стр. (40%)"),
-                Book(2, "Винo из одуванчиков", "Рэй Брэдбери", "120 из 300 стр. (40%)"),
-                Book(2, "Винo из одуванчиков", "Рэй Брэдбери", "120 из 300 стр. (40%)"),Book(2, "Винo из одуванчиков", "Рэй Брэдбери", "120 из 300 стр. (40%)"),Book(2, "Винo из одуванчиков", "Рэй Брэдбери", "120 из 300 стр. (40%)"),
-                Book(2, "Винo из одуванчиков", "Рэй Брэдбери", "120 из 300 стр. (40%)"),
-                Book(2, "Винo из одуванчиков", "Рэй Брэдбери", "120 из 300 стр. (40%)"),
-
-
-            ),
+            books = books,
             onAddClick = {},
             onBookClick = {},
             onContinueClick = {}

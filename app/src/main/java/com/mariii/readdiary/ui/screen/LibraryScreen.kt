@@ -3,46 +3,65 @@
 package com.mariii.readdiary.ui.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.mariii.readdiary.domain.model.Book
+import com.mariii.readdiary.domain.model.ReadingStatus
 import com.mariii.readdiary.navigation.Screen
+import com.mariii.readdiary.ui.components.book.BookGrid
 import com.mariii.readdiary.ui.components.state.EmptyState
-import com.mariii.readdiary.ui.theme.*
-
-
-data class LibraryBook(
-    val id: Int,
-    val title: String,
-    val author: String
-)
+import com.mariii.readdiary.ui.theme.AppTypography
+import com.mariii.readdiary.ui.theme.Background
+import com.mariii.readdiary.ui.theme.Dimens
+import com.mariii.readdiary.ui.theme.OnButtonLight
+import com.mariii.readdiary.ui.theme.OnSurface
+import com.mariii.readdiary.ui.theme.PrimaryTransparent
+import com.mariii.readdiary.ui.theme.ReadDiaryTheme
+import com.mariii.readdiary.ui.theme.Surface
+import com.mariii.readdiary.ui.viewmodel.BookViewModel
 
 
 // -------------------------
 // экран с навигацией
 // -------------------------
 @Composable
-fun LibraryScreen(navController: NavController) {
+fun LibraryScreen(
+    navController: NavController,
+    viewModel: BookViewModel = viewModel()
+) {
 
-    val books = listOf(
-        LibraryBook(1, "1984", "Оруэлл"),
-        LibraryBook(2, "Книга 2", "Автор"),
-        LibraryBook(3, "Книга 3", "Автор")
-    )
+    val books = viewModel.books
 
     LibraryScreenContent(
         books = books,
@@ -61,7 +80,7 @@ fun LibraryScreen(navController: NavController) {
 // -------------------------
 @Composable
 fun LibraryScreenContent(
-    books: List<LibraryBook>,
+    books: List<Book>,
     onAddClick: () -> Unit,
     onBookClick: (Int) -> Unit
 ) {
@@ -160,24 +179,11 @@ fun LibraryScreenContent(
                 )
 
             } else {
-
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-
-                    items(filteredBooks) { book ->
-                        Box(
-                            modifier = Modifier
-                                .aspectRatio(0.7f)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(SurfaceVariant)
-                                .clickable { onBookClick(book.id) }
-                        )
-                    }
-                }
+                BookGrid(
+                    books = books,
+                    emptyText = "у вас пока нет книг",
+                    onBookClick = onBookClick
+                )
             }
         }
     }
@@ -211,12 +217,28 @@ fun FilterDropdown(text: String) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LibraryPreview_WithData() {
+
+    val books = listOf(
+        Book(
+            id = 1,
+            title = "Вино из одуванчиков",
+            author = "Рэй Брэдбери",
+            totalPages = 300,
+            currentPage = 120,
+            status = ReadingStatus.READING
+        ),
+        Book(
+            id = 2,
+            title = "Маленький принц",
+            author = "Экзюпери",
+            totalPages = 150,
+            currentPage = 150,
+            status = ReadingStatus.FINISHED
+        ))
+
     ReadDiaryTheme {
         LibraryScreenContent(
-            books = listOf(
-                LibraryBook(1, "Винo из одуванчиков", "Рэй Брэдбери"),
-                LibraryBook(2, "Книга", "Автор")
-            ),
+            books = books,
             onAddClick = {},
             onBookClick = {}
         )
