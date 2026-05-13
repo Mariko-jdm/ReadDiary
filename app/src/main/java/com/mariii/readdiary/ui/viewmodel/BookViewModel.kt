@@ -1,25 +1,75 @@
 package com.mariii.readdiary.ui.viewmodel
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import com.mariii.readdiary.data.repository.FakeBookRepository
+import androidx.lifecycle.viewModelScope
+import com.mariii.readdiary.data.repository.BookRepository
 import com.mariii.readdiary.domain.model.Book
+import com.mariii.readdiary.domain.model.ReadingNote
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class BookViewModel : ViewModel() {
+class BookViewModel(
+    private val repository: BookRepository
+) : ViewModel() {
 
-    private val _books = mutableStateListOf<Book>()
+    private val _books = MutableStateFlow<List<Book>>(emptyList())
 
-    val books: List<Book> = _books
+    val books: StateFlow<List<Book>> = _books.asStateFlow()
 
     init {
-        _books.addAll(FakeBookRepository.getBooks())
+        loadBooks()
+    }
+
+    private fun loadBooks() {
+
+        viewModelScope.launch {
+
+            repository.getBooks().collect { booksList ->
+                _books.value = booksList
+            }
+        }
     }
 
     fun addBook(book: Book) {
-        _books.add(book)
+
+        viewModelScope.launch {
+            repository.insertBook(book)
+        }
     }
 
-    fun getBookById(id: Int): Book? {
-        return _books.find { it.id == id }
+    fun updateBook(book: Book) {
+
+        viewModelScope.launch {
+            repository.updateBook(book)
+        }
+    }
+
+    fun deleteBook(book: Book) {
+
+        viewModelScope.launch {
+            repository.deleteBook(book)
+        }
+    }
+    fun addNoteToBook(
+        bookId: Int,
+        note: ReadingNote
+    ) {
+
+        val updatedBooks = _books.value.map { book ->
+
+            if (book.id == bookId) {
+
+                book.copy(
+                    notes = book.notes + note
+                )
+
+            } else {
+                book
+            }
+        }
+
+        _books.value = updatedBooks
     }
 }

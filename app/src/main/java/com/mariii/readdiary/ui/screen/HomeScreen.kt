@@ -24,6 +24,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +50,7 @@ import com.mariii.readdiary.ui.theme.Dimens
 import com.mariii.readdiary.ui.theme.OnBackground
 import com.mariii.readdiary.ui.theme.OnButtonLight
 import com.mariii.readdiary.ui.theme.OnSurface
-import com.mariii.readdiary.ui.theme.PrimaryTransparent
+import com.mariii.readdiary.ui.theme.Primary
 import com.mariii.readdiary.ui.theme.ReadDiaryTheme
 import com.mariii.readdiary.ui.theme.Surface
 import com.mariii.readdiary.ui.viewmodel.BookViewModel
@@ -62,7 +64,7 @@ fun HomeScreen(
     viewModel: BookViewModel = viewModel()
 ){
 
-    val books = viewModel.books
+    val books by viewModel.books.collectAsState()
 
     HomeScreenContent(
         books = books,
@@ -110,7 +112,7 @@ fun HomeScreenContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddClick,
-                containerColor = PrimaryTransparent
+                containerColor = Primary
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, tint = OnButtonLight)
             }

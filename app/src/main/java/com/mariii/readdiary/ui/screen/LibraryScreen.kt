@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,7 +47,7 @@ import com.mariii.readdiary.ui.theme.Background
 import com.mariii.readdiary.ui.theme.Dimens
 import com.mariii.readdiary.ui.theme.OnButtonLight
 import com.mariii.readdiary.ui.theme.OnSurface
-import com.mariii.readdiary.ui.theme.PrimaryTransparent
+import com.mariii.readdiary.ui.theme.Primary
 import com.mariii.readdiary.ui.theme.ReadDiaryTheme
 import com.mariii.readdiary.ui.theme.Surface
 import com.mariii.readdiary.ui.viewmodel.BookViewModel
@@ -61,7 +62,7 @@ fun LibraryScreen(
     viewModel: BookViewModel = viewModel()
 ) {
 
-    val books = viewModel.books
+    val books by viewModel.books.collectAsState()
 
     LibraryScreenContent(
         books = books,
@@ -133,7 +134,7 @@ fun LibraryScreenContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddClick,
-                containerColor = PrimaryTransparent
+                containerColor = Primary
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, tint = OnButtonLight)
             }

@@ -41,12 +41,13 @@ import com.mariii.readdiary.ui.theme.Background
 import com.mariii.readdiary.ui.theme.Dimens
 import com.mariii.readdiary.ui.theme.ReadDiaryTheme
 import com.mariii.readdiary.ui.theme.Surface
+import com.mariii.readdiary.ui.viewmodel.BookViewModel
 
 
 @Composable
 fun AddBookScreen(
     navController: NavController,
-    //viewModel: BookViewModel = viewModel()
+    viewModel: BookViewModel
 ) {
 
 
