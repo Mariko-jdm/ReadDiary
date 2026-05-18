@@ -77,7 +77,7 @@ fun BookCard(
                 color = OnSurface.copy(alpha = 0.7f)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             content()
         }

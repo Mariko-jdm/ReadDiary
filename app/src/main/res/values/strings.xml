@@ -1,3 +1,37 @@
 <resources>
-    <string name="app_name">ReadDiary</string>
+    <string name="app_name">SpellRead</string>
+
+    <string name="home">Главная</string>
+    <string name="cont">Продолжить</string>
+    <string name="add_note">Добавить заметку</string>
+    <string name="empty_library">у вас пока нет книг</string>
+
+    <string name="new_book">Новая книга</string>
+    <string name="search_book">Поиск книги в базе</string>
+    <string name="nothing_found">книги не найдены</string>
+    <string name="note">Заметка</string>
+    <string name="book">Книга</string>
+    <string name="books">Книги</string>
+    <string name="note_and_citation">Заметки и цитаты</string>
+    <string name="search_name_author">Поиск по названию/автору</string>
+    <string name="reading_status">Статус чтения</string>
+    <string name="category">Категория</string>
+    <string name="statistics">Статистика</string>
+    <string name="new_note">Новая заметка</string>
+    <string name="enter_text">Введите текст...</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
+    <string name="book_name">Название книги</string>
+    <string name="author">Автор</string>
+    <string name="total_pages">Всего страниц:</string>
+    <string name="current_page">Текущая страница:</string>
+
+    <string name="status_reading">Читаю сейчас</string>
+    <string name="status_finished">Завершена</string>
+    <string name="status_planned">В планах</string>
+    <string name="status_dropped">Отложена</string>
+    <string name="finish_book">Завершить книгу</string>
+    <string name="progress_reading">Прогресс чтения</string>
+    <string name="finish">Завершить</string>
+    <string name="no_notes_yet">Пока нет заметок</string>
 </resources>

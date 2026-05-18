@@ -16,8 +16,16 @@ ksp = "2.0.20-1.0.24"
 junit = "4.13.2"
 material-icons = "1.7.0"
 
+androidx-test-junit = "1.2.1"
+androidx-espresso = "3.6.1"
+androidx-test-core = "1.6.1"
+
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-junit" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-espresso" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidx-test-core" }
+
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
 
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
@@ -32,7 +40,7 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-#new
+
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }

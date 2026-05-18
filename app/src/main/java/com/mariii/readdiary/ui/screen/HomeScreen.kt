@@ -3,6 +3,7 @@
 package com.mariii.readdiary.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,23 +27,27 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mariii.readdiary.R
 import com.mariii.readdiary.domain.model.Book
-import com.mariii.readdiary.domain.model.ReadingStatus
 import com.mariii.readdiary.navigation.Screen
 import com.mariii.readdiary.ui.components.book.BookCard
 import com.mariii.readdiary.ui.components.book.BookGrid
+import com.mariii.readdiary.ui.components.book.UpdateProgressDialog
 import com.mariii.readdiary.ui.components.common.PrimaryButton
+import com.mariii.readdiary.ui.components.note.AddNoteDialog
 import com.mariii.readdiary.ui.components.state.EmptyState
 import com.mariii.readdiary.ui.theme.AppTypography
 import com.mariii.readdiary.ui.theme.Background
@@ -51,7 +56,6 @@ import com.mariii.readdiary.ui.theme.OnBackground
 import com.mariii.readdiary.ui.theme.OnButtonLight
 import com.mariii.readdiary.ui.theme.OnSurface
 import com.mariii.readdiary.ui.theme.Primary
-import com.mariii.readdiary.ui.theme.ReadDiaryTheme
 import com.mariii.readdiary.ui.theme.Surface
 import com.mariii.readdiary.ui.viewmodel.BookViewModel
 
@@ -62,22 +66,81 @@ import com.mariii.readdiary.ui.viewmodel.BookViewModel
 fun HomeScreen(
     navController: NavController,
     viewModel: BookViewModel = viewModel()
-){
+) {
 
     val books by viewModel.books.collectAsState()
 
+    var selectedBook by remember {
+        mutableStateOf<Book?>(null)
+    }
+
+    var showNoteDialog by remember {
+        mutableStateOf(false)
+    }
+
     HomeScreenContent(
         books = books,
+
         onAddClick = {
             navController.navigate(Screen.AddBook.route)
         },
-        onBookClick = { id ->
-            navController.navigate(Screen.BookDetails.createRoute(id))
+
+        onBookClick = { book ->
+            navController.navigate(
+                Screen.BookDetails.createRoute(book.id)
+            )
         },
-        onContinueClick = { id ->
-            navController.navigate(Screen.BookDetails.createRoute(id))
+
+        onContinueClick = { book ->
+            selectedBook = book
+        },
+
+        onAddNoteClick = {
+            showNoteDialog = true
         }
     )
+
+    // диалог обновления прогресса
+    selectedBook?.let { book ->
+
+        UpdateProgressDialog(
+
+            book = book,
+
+            onDismiss = {
+                selectedBook = null
+            },
+
+            onConfirm = { page, status ->
+
+                viewModel.updateReadingProgress(
+                    book = book,
+                    newPage = page,
+                    newStatus = status
+                )
+
+                selectedBook = null
+            }
+        )
+    }
+
+    // диалог заметки
+    if (showNoteDialog) {
+
+        AddNoteDialog(
+
+            onDismiss = {
+                showNoteDialog = false
+            },
+
+            onConfirm = {
+
+                // позже добавим сохранение заметок
+
+                showNoteDialog = false
+            }
+        )
+    }
 }
 
 
@@ -88,8 +151,9 @@ fun HomeScreen(
 fun HomeScreenContent(
     books: List<Book>,
     onAddClick: () -> Unit,
-    onBookClick: (Int) -> Unit,
-    onContinueClick: (Int) -> Unit
+    onBookClick: (Book) -> Unit,
+    onContinueClick: (Book) -> Unit,
+    onAddNoteClick: () -> Unit
 ) {
 
     Scaffold(
@@ -97,7 +161,7 @@ fun HomeScreenContent(
 
         topBar = {
             TopAppBar(
-                title = { Text("Главная", color = OnBackground) },
+                title = { Text(stringResource(R.string.home), color = OnBackground) },
                 navigationIcon = {
                     IconButton(onClick = {}) {
                         Icon(Icons.Default.Menu, contentDescription = null, tint = OnBackground)
@@ -155,8 +219,10 @@ fun HomeScreenContent(
                                 Spacer(modifier = Modifier.height(12.dp))
 
                                 PrimaryButton(
-                                    text = "Продолжить",
-                                    onClick = {},
+                                    text = stringResource(R.string.cont),
+                                    onClick = {
+                                        onContinueClick(book)
+                                              },
                                     leadingIcon = {
                                         Icon(
                                             painter = painterResource(R.drawable.triangle_play),
@@ -173,7 +239,10 @@ fun HomeScreenContent(
                                 Spacer(modifier = Modifier.height(12.dp))
 
                                 Text(
-                                    text = "Добавить заметку",
+                                    text = stringResource(R.string.add_note),
+                                    modifier = Modifier.clickable {
+                                        onAddNoteClick()
+                                    },
                                     style = AppTypography.bodyMedium.copy(
                                         textDecoration = TextDecoration.Underline
                                     ),
@@ -196,7 +265,7 @@ fun HomeScreenContent(
                 ) {
 
                     Text(
-                        text = "Читаю сейчас",
+                        text = stringResource(R.string.status_reading),
                         style = AppTypography.titleMedium,
                         color = OnBackground
                     )
@@ -206,14 +275,14 @@ fun HomeScreenContent(
                     if (books.isEmpty()) {
 
                         EmptyState(
-                            text = "у вас пока нет книг",
+                            text = stringResource(R.string.empty_library),
                             modifier = Modifier.fillMaxWidth()
                         )
 
                     } else {
                         BookGrid(
                             books = books,
-                            emptyText = "у вас пока нет книг",
+                            emptyText = stringResource(R.string.empty_library),
                             onBookClick = onBookClick
                         )
                     }
@@ -224,43 +293,44 @@ fun HomeScreenContent(
 }
 
 
-// -------------------------
-// preview
-// -------------------------
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun HomeScreenPreview_Empty() {
-    ReadDiaryTheme {
-        HomeScreenContent(
-            books = emptyList(),
-            onAddClick = {},
-            onBookClick = {},
-            onContinueClick = {}
-        )
-    }
-}
+//// -------------------------
+//// preview
+//// -------------------------
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun HomeScreenPreview_Empty() {
+//    ReadDiaryTheme {
+//        HomeScreenContent(
+//            books = emptyList(),
+//            onAddClick = {},
+//            onBookClick = {},
+//            onContinueClick = {}
+//        )
+//    }
+//}
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun HomeScreenPreview_WithData() {
-
-    val books = listOf(
-        Book(
-            id = 1,
-            title = "Вино из одуванчиков",
-            author = "Рэй Брэдбери",
-            totalPages = 300,
-            currentPage = 120,
-            status = ReadingStatus.READING
-        )
-    )
-
-    ReadDiaryTheme {
-        HomeScreenContent(
-            books = books,
-            onAddClick = {},
-            onBookClick = {},
-            onContinueClick = {}
-        )
-    }
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun HomeScreenPreview_WithData() {
+//
+//    val books = listOf(
+//        Book(
+//            id = 1,
+//            title = "Вино из одуванчиков",
+//            author = "Рэй Брэдбери",
+//            totalPages = 300,
+//            currentPage = 120,
+//            status = ReadingStatus.READING
+//        )
+//    )
+//
+//    ReadDiaryTheme {
+//        HomeScreenContent(
+//    books = books,
+//    onAddClick = {},
+//    onBookClick = {},
+//    onContinueClick = {},
+//    onAddNoteClick = {}
+//)
+//    }
+//}

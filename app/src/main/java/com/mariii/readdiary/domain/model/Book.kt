@@ -1,7 +1,7 @@
 package com.mariii.readdiary.domain.model
 
 data class Book(
-    val id: Int,
+    val id: Int = 0,
     val title: String,
     val author: String,
 

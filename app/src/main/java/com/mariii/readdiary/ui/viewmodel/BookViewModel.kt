@@ -5,32 +5,23 @@ import androidx.lifecycle.viewModelScope
 import com.mariii.readdiary.data.repository.BookRepository
 import com.mariii.readdiary.domain.model.Book
 import com.mariii.readdiary.domain.model.ReadingNote
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.mariii.readdiary.domain.model.ReadingStatus
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class BookViewModel(
     private val repository: BookRepository
 ) : ViewModel() {
 
-    private val _books = MutableStateFlow<List<Book>>(emptyList())
-
-    val books: StateFlow<List<Book>> = _books.asStateFlow()
-
-    init {
-        loadBooks()
-    }
-
-    private fun loadBooks() {
-
-        viewModelScope.launch {
-
-            repository.getBooks().collect { booksList ->
-                _books.value = booksList
-            }
-        }
-    }
+    val books: StateFlow<List<Book>> =
+        repository.getBooks()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
     fun addBook(book: Book) {
 
@@ -52,12 +43,15 @@ class BookViewModel(
             repository.deleteBook(book)
         }
     }
+
     fun addNoteToBook(
         bookId: Int,
         note: ReadingNote
     ) {
 
-        val updatedBooks = _books.value.map { book ->
+        val currentBooks = books.value
+
+        val updatedBooks = currentBooks.map { book ->
 
             if (book.id == bookId) {
 
@@ -70,6 +64,25 @@ class BookViewModel(
             }
         }
 
-        _books.value = updatedBooks
+        updatedBooks.forEach { updatedBook ->
+            updateBook(updatedBook)
+        }
+    }
+
+    fun updateReadingProgress(
+        book: Book,
+        newPage: Int,
+        newStatus: ReadingStatus
+    ) {
+
+        viewModelScope.launch {
+
+            repository.updateBook(
+                book.copy(
+                    currentPage = newPage,
+                    status = newStatus
+                )
+            )
+        }
     }
 }

@@ -28,7 +28,7 @@ import com.mariii.readdiary.ui.theme.SurfaceVariant
 fun BookGrid(
     books: List<Book>,
     emptyText: String,
-    onBookClick: (Int) -> Unit
+    onBookClick: (Book) -> Unit
 ) {
 
     if (books.isEmpty()) {
@@ -59,7 +59,7 @@ fun BookGrid(
                 BookGridItem(
                     book = book,
                     onClick = {
-                        onBookClick(book.id)
+                        onBookClick(book)
                     }
                 )
             }

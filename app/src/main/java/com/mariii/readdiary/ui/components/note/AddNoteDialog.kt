@@ -1,6 +1,7 @@
 package com.mariii.readdiary.ui.components.note
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -11,6 +12,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.mariii.readdiary.R
+import com.mariii.readdiary.ui.theme.OnSurface
 
 @Composable
 fun AddNoteDialog(
@@ -26,12 +31,13 @@ fun AddNoteDialog(
         onDismissRequest = onDismiss,
 
         title = {
-            Text("Новая заметка")
+            Text(stringResource(R.string.new_note))
         },
 
         text = {
 
             OutlinedTextField(
+                shape = RoundedCornerShape(20.dp),
                 value = text,
                 onValueChange = {
                     text = it
@@ -40,7 +46,7 @@ fun AddNoteDialog(
                 modifier = Modifier.fillMaxWidth(),
 
                 placeholder = {
-                    Text("Введите текст заметки")
+                    Text(stringResource(R.string.enter_text))
                 }
             )
         },
@@ -55,8 +61,7 @@ fun AddNoteDialog(
                     }
                 }
             ) {
-
-                Text("Сохранить")
+                Text(stringResource(R.string.save), color = OnSurface)
             }
         },
 
@@ -65,8 +70,7 @@ fun AddNoteDialog(
             TextButton(
                 onClick = onDismiss
             ) {
-
-                Text("Отмена")
+                Text(stringResource(R.string.cancel), color = OnSurface)
             }
         }
     )

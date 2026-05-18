@@ -17,7 +17,6 @@ class BookRepository(
             list.map { it.toDomain() }
         }
     }
-
     suspend fun insertBook(book: Book) {
         bookDao.insertBook(book.toEntity())
     }

@@ -28,21 +28,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.mariii.readdiary.data.repository.FakeBookRepository
+import com.mariii.readdiary.R
+import com.mariii.readdiary.data.source.BookSearchSource
+import com.mariii.readdiary.domain.model.Book
 import com.mariii.readdiary.domain.model.ReadingStatus
 import com.mariii.readdiary.ui.components.book.BookGrid
-import com.mariii.readdiary.ui.components.book.EditableBookCard
+import com.mariii.readdiary.ui.components.book.EditableBookContent
 import com.mariii.readdiary.ui.theme.Background
 import com.mariii.readdiary.ui.theme.Dimens
-import com.mariii.readdiary.ui.theme.ReadDiaryTheme
 import com.mariii.readdiary.ui.theme.Surface
 import com.mariii.readdiary.ui.viewmodel.BookViewModel
-
 
 @Composable
 fun AddBookScreen(
@@ -50,12 +50,16 @@ fun AddBookScreen(
     viewModel: BookViewModel
 ) {
 
-
     AddBookScreenContent(
+
         onBackClick = {
             navController.popBackStack()
         },
-        onSaveClick = {
+
+        onSaveClick = { book ->
+
+            viewModel.addBook(book)
+
             navController.popBackStack()
         }
     )
@@ -64,17 +68,32 @@ fun AddBookScreen(
 @Composable
 fun AddBookScreenContent(
     onBackClick: () -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: (Book) -> Unit
 ) {
-    val searchBooks = FakeBookRepository.getBooks()
-    var title by remember { mutableStateOf("") }
-    var author by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
 
-    var totalPages by remember { mutableStateOf("") }
-    var currentPage by remember { mutableStateOf("0") }
+    var title by remember {
+        mutableStateOf("")
+    }
 
-    var rating by remember { mutableIntStateOf(0) }
+    var author by remember {
+        mutableStateOf("")
+    }
+
+    var category by remember {
+        mutableStateOf("")
+    }
+
+    var totalPages by remember {
+        mutableStateOf("")
+    }
+
+    var currentPage by remember {
+        mutableStateOf("")
+    }
+
+    var rating by remember {
+        mutableIntStateOf(0)
+    }
 
     var status by remember {
         mutableStateOf(ReadingStatus.PLANNED)
@@ -84,7 +103,23 @@ fun AddBookScreenContent(
         mutableStateOf("")
     }
 
+    val searchBooks = BookSearchSource
+        .getBooks()
+        .filter {
+
+            it.title.contains(
+                searchQuery,
+                ignoreCase = true
+            ) ||
+
+                    it.author.contains(
+                        searchQuery,
+                        ignoreCase = true
+                    )
+        }
+
     Scaffold(
+
         containerColor = Background,
 
         topBar = {
@@ -92,7 +127,9 @@ fun AddBookScreenContent(
             TopAppBar(
 
                 title = {
-                    Text("Новая книга")
+                    Text(
+                        stringResource(R.string.new_book)
+                    )
                 },
 
                 navigationIcon = {
@@ -100,9 +137,10 @@ fun AddBookScreenContent(
                     IconButton(
                         onClick = onBackClick
                     ) {
+
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            null
                         )
                     }
                 },
@@ -110,11 +148,33 @@ fun AddBookScreenContent(
                 actions = {
 
                     IconButton(
-                        onClick = onSaveClick
+
+                        onClick = {
+
+                            onSaveClick(
+
+                                Book(
+                                    title = title,
+                                    author = author,
+                                    category = category,
+
+                                    rating = rating,
+
+                                    totalPages =
+                                        totalPages.toIntOrNull() ?: 0,
+
+                                    currentPage =
+                                        currentPage.toIntOrNull() ?: 0,
+
+                                    status = status
+                                )
+                            )
+                        }
                     ) {
+
                         Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = null
+                            Icons.Default.Check,
+                            null
                         )
                     }
                 },
@@ -124,85 +184,146 @@ fun AddBookScreenContent(
                 )
             )
         }
-
     ) { padding ->
 
         Column(
+
             modifier = Modifier
                 .padding(padding)
                 .padding(Dimens.paddingMedium)
         ) {
 
-            EditableBookCard(
+            EditableBookContent(
+
                 title = title,
-                onTitleChange = { title = it },
+                onTitleChange = {
+                    title = it
+                },
 
                 author = author,
-                onAuthorChange = { author = it },
+                onAuthorChange = {
+                    author = it
+                },
 
                 category = category,
-                onCategoryClick = {},
+                onCategoryChange = {
+                    category = it
+                },
 
                 status = status,
-                onStatusClick = {},
+                onStatusChange = {
+                    status = it
+                },
 
                 rating = rating,
-                onRatingChange = { rating = it },
+                onRatingChange = {
+                    rating = it
+                },
 
                 totalPages = totalPages,
-                onTotalPagesChange = { totalPages = it },
+                onTotalPagesChange = {
+                    totalPages = it
+                },
 
                 currentPage = currentPage,
-                onCurrentPageChange = { currentPage = it }
+                onCurrentPageChange = {
+                    currentPage = it
+                }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
             Column(
+
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(Dimens.cornerRadius))
-                    .background(Surface)
+                    .background(Surface, RoundedCornerShape(Dimens.cornerRadius))
                     .padding(Dimens.paddingMedium)
             ) {
 
                 TextField(
+
                     value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    placeholder = {
-                        Text("Поиск книги в базе")
+
+                    onValueChange = {
+                        searchQuery = it
                     },
+
+                    placeholder = {
+
+                        Text(
+                            stringResource(R.string.search_book)
+                        )
+                    },
+
                     modifier = Modifier.fillMaxWidth(),
+
                     shape = RoundedCornerShape(20.dp),
+
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF3EFE7),
-                        unfocusedContainerColor = Color(0xFFF3EFE7),
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
+
+                        focusedContainerColor =
+                            Color(0xFFF3EFE7),
+
+                        unfocusedContainerColor =
+                            Color(0xFFF3EFE7),
+
+                        focusedIndicatorColor =
+                            Color.Transparent,
+
+                        unfocusedIndicatorColor =
+                            Color.Transparent
                     )
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
 
                 BookGrid(
+
                     books = searchBooks,
-                    emptyText = "книги не найдены",
-                    onBookClick = { }
+
+                    emptyText =
+                        stringResource(R.string.nothing_found),
+
+                    onBookClick = { selectedBook ->
+
+                        title = selectedBook.title
+                        author = selectedBook.author
+                        category = selectedBook.category
+
+                        totalPages =
+                            selectedBook.totalPages.toString()
+
+                        currentPage =
+                            selectedBook.currentPage.toString()
+
+                        rating =
+                            selectedBook.rating
+
+                        status =
+                            selectedBook.status
+                    }
                 )
             }
         }
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFF6F1E9
+)
 @Composable
-fun AddBookScreenPreview() {
+private fun AddBookScreenPreview() {
 
-    ReadDiaryTheme {
+    AddBookScreenContent(
 
-        AddBookScreenContent(
-            onBackClick = {},
-            onSaveClick = {}
-        )
-    }
+        onBackClick = {},
+
+        onSaveClick = {}
+    )
 }

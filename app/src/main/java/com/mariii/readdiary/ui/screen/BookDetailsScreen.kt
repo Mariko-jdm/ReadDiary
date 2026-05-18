@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.mariii.readdiary.ui.screen
 
 import androidx.compose.foundation.background
@@ -15,10 +16,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,13 +33,16 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,6 +51,10 @@ import com.mariii.readdiary.R
 import com.mariii.readdiary.domain.model.Book
 import com.mariii.readdiary.domain.model.ReadingNote
 import com.mariii.readdiary.domain.model.ReadingStatus
+import com.mariii.readdiary.ui.components.book.BookCard
+import com.mariii.readdiary.ui.components.book.EditableBookContent
+import com.mariii.readdiary.ui.components.book.UpdateProgressDialog
+import com.mariii.readdiary.ui.components.book.statusToText
 import com.mariii.readdiary.ui.components.common.PrimaryButton
 import com.mariii.readdiary.ui.components.note.AddNoteDialog
 import com.mariii.readdiary.ui.theme.AppTypography
@@ -63,192 +71,221 @@ import com.mariii.readdiary.ui.viewmodel.BookViewModel
 fun BookDetailsScreen(
     navController: NavController,
     bookId: Int,
-    viewModel: BookViewModel
+    viewModel: BookViewModel,
 ) {
 
     val books by viewModel.books.collectAsState()
 
-    val book = books.find { it.id == bookId }
+    val book = books.find {
+        it.id == bookId
+    } ?: return
 
-    if (book == null) {
-        return
+    var selectedBookForProgress by remember {
+        mutableStateOf<Book?>(null)
     }
 
-    BookDetailsContent(book = book)
-}
+    var showAddNoteDialog by remember {
+        mutableStateOf(false)
+    }
 
-@Composable
-private fun BookInfoSection(
-    book: Book
-) {
+    var isEditing by remember {
+        mutableStateOf(false)
+    }
 
-    val progress =
-        if (book.totalPages > 0)
-            (book.currentPage * 100) / book.totalPages
-        else 0
+    var editedTitle by remember {
+        mutableStateOf(book.title)
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(Dimens.cornerRadius))
-            .background(Surface)
-            .padding(Dimens.paddingMedium)
-    ) {
+    var editedAuthor by remember {
+        mutableStateOf(book.author)
+    }
 
-        Row {
+    var editedCategory by remember {
+        mutableStateOf(book.category)
+    }
 
-            Box(
-                modifier = Modifier
-                    .size(width = 120.dp, height = 190.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(SurfaceVariant)
-            )
+    var editedStatus by remember {
+        mutableStateOf(book.status)
+    }
 
-            Spacer(modifier = Modifier.width(16.dp))
+    var editedRating by remember {
+        mutableIntStateOf(book.rating)
+    }
 
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+    var editedTotalPages by remember {
+        mutableStateOf(book.totalPages.toString())
+    }
 
-                Text(
-                    text = book.title,
-                    style = AppTypography.titleLarge,
-                    color = OnSurface
-                )
+    var editedCurrentPage by remember {
+        mutableStateOf(book.currentPage.toString())
+    }
 
-                Spacer(modifier = Modifier.height(4.dp))
+    BookDetailsContent(
 
-                Text(
-                    text = book.author,
-                    style = AppTypography.bodyMedium,
-                    color = OnSurface.copy(alpha = 0.7f)
-                )
+        book = book,
 
-                Spacer(modifier = Modifier.height(4.dp))
+        editedTitle = editedTitle,
+        onTitleChange = {
+            editedTitle = it
+        },
 
-                Text(
-                    text = book.category,
-                    style = AppTypography.bodyMedium,
-                    color = OnSurface
-                )
+        editedAuthor = editedAuthor,
+        onAuthorChange = {
+            editedAuthor = it
+        },
 
-                Spacer(modifier = Modifier.height(4.dp))
+        editedCategory = editedCategory,
+        onCategoryChange = {
+            editedCategory = it
+        },
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+        editedStatus = editedStatus,
+        onStatusChange = {
+            editedStatus = it
+        },
 
-                    Text(
-                        text = book.rating.toString(),
-                        style = AppTypography.bodyMedium
+        editedRating = editedRating,
+        onRatingChange = {
+            editedRating = it
+        },
+
+        editedTotalPages = editedTotalPages,
+        onTotalPagesChange = {
+            editedTotalPages = it
+        },
+
+        editedCurrentPage = editedCurrentPage,
+        onCurrentPageChange = {
+            editedCurrentPage = it
+        },
+
+        isEditing = isEditing,
+
+        onEditClick = {
+
+            if (isEditing) {
+
+                viewModel.updateBook(
+
+                    book.copy(
+                        title = editedTitle,
+                        author = editedAuthor,
+                        category = editedCategory,
+                        status = editedStatus,
+                        rating = editedRating,
+                        totalPages = editedTotalPages.toIntOrNull() ?: 0,
+                        currentPage = editedCurrentPage.toIntOrNull() ?: 0
                     )
-
-                    Spacer(modifier = Modifier.width(4.dp))
-
-                    Text("★")
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "${book.currentPage} из ${book.totalPages} стр. ($progress%)",
-                        style = AppTypography.bodyMedium,
-                        color = OnSurface,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    PrimaryButton(
-                        text = "Продолжить",
-                        onClick = {},
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.triangle_play),
-                                contentDescription = null,
-                                tint = OnSurface,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .rotate(180f)
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(
-                        onClick = { },
-
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Primary.copy(alpha = 0.45f),
-                            contentColor = OnSurface.copy(alpha = 0.8f)
-                        ),
-
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = null
-                        )
-
-                        Spacer(modifier = Modifier.width(6.dp))
-
-                        Text("Завершить")
-                    }
-                }
-
-
-
+                )
             }
+
+            isEditing = !isEditing
+        },
+
+        onBackClick = {
+            navController.popBackStack()
+        },
+
+        onContinueClick = {
+            selectedBookForProgress = it
+        },
+
+        onAddNoteClick = {
+            showAddNoteDialog = true
+        },
+
+        onFinishBookClick = {
+
+            viewModel.updateReadingProgress(
+                book = it,
+                newPage = it.totalPages,
+                newStatus = ReadingStatus.FINISHED
+            )
         }
+    )
+
+    selectedBookForProgress?.let { currentBook ->
+
+        UpdateProgressDialog(
+
+            book = currentBook,
+
+            onDismiss = {
+                selectedBookForProgress = null
+            },
+
+            onConfirm = { newPage, newStatus ->
+
+                viewModel.updateReadingProgress(
+                    book = currentBook,
+                    newPage = newPage,
+                    newStatus = newStatus
+                )
+
+                selectedBookForProgress = null
+            }
+        )
     }
-}
 
-@Composable
-private fun NoteCard(
-    note: ReadingNote
-) {
+    if (showAddNoteDialog) {
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(SurfaceVariant.copy(alpha = 0.5f))
-            .padding(16.dp)
-    ) {
+        AddNoteDialog(
 
-        Text(
-            text = note.text,
-            style = AppTypography.bodyMedium,
-            color = OnSurface
+            onDismiss = {
+                showAddNoteDialog = false
+            },
+
+            onConfirm = {
+
+                showAddNoteDialog = false
+            }
         )
     }
 }
 
-
 @Composable
 private fun BookDetailsContent(
-    book: Book
+
+    book: Book,
+
+    editedTitle: String,
+    onTitleChange: (String) -> Unit,
+
+    editedAuthor: String,
+    onAuthorChange: (String) -> Unit,
+
+    editedCategory: String,
+    onCategoryChange: (String) -> Unit,
+
+    editedStatus: ReadingStatus,
+    onStatusChange: (ReadingStatus) -> Unit,
+
+    editedRating: Int,
+    onRatingChange: (Int) -> Unit,
+
+    editedTotalPages: String,
+    onTotalPagesChange: (String) -> Unit,
+
+    editedCurrentPage: String,
+    onCurrentPageChange: (String) -> Unit,
+
+    isEditing: Boolean,
+    onEditClick: () -> Unit,
+
+    onBackClick: () -> Unit,
+    onContinueClick: (Book) -> Unit,
+    onAddNoteClick: () -> Unit,
+    onFinishBookClick: (Book) -> Unit
 ) {
-    val showDialog = remember {
-        mutableStateOf(false)
-    }
+
     Scaffold(
+
         containerColor = Background,
 
         floatingActionButton = {
 
             FloatingActionButton(
-                onClick = {
-                    showDialog.value = true
-                },
+                onClick = onAddNoteClick,
                 containerColor = Primary,
                 contentColor = OnSurface
             ) {
@@ -265,7 +302,7 @@ private fun BookDetailsContent(
 
                     Spacer(modifier = Modifier.width(4.dp))
 
-                    Text("Заметка")
+                    Text(stringResource(R.string.note))
                 }
             }
         },
@@ -273,25 +310,39 @@ private fun BookDetailsContent(
         topBar = {
 
             TopAppBar(
+
                 title = {
-                    Text("Книга")
+                    Text(stringResource(R.string.book))
                 },
 
                 navigationIcon = {
 
                     IconButton(
-                        onClick = { }
+                        onClick = onBackClick
                     ) {
-                        Icon(Icons.Default.Menu, null)
+
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            null
+                        )
                     }
                 },
 
                 actions = {
 
                     IconButton(
-                        onClick = { }
+                        onClick = onEditClick
                     ) {
-                        Icon(Icons.Default.Edit, null)
+
+                        Icon(
+                            imageVector =
+                                if (isEditing) {
+                                    Icons.Default.Check
+                                } else {
+                                    Icons.Default.Edit
+                                },
+                            contentDescription = null
+                        )
                     }
                 },
 
@@ -303,6 +354,7 @@ private fun BookDetailsContent(
     ) { padding ->
 
         LazyColumn(
+
             modifier = Modifier
                 .padding(padding)
                 .padding(Dimens.paddingMedium),
@@ -311,85 +363,353 @@ private fun BookDetailsContent(
         ) {
 
             item {
-                BookInfoSection(book)
+
+                if (isEditing) {
+
+                    EditableBookContent(
+
+                        title = editedTitle,
+                        onTitleChange = onTitleChange,
+
+                        author = editedAuthor,
+                        onAuthorChange = onAuthorChange,
+
+                        category = editedCategory,
+                        onCategoryChange = onCategoryChange,
+
+                        status = editedStatus,
+                        onStatusChange = onStatusChange,
+
+                        rating = editedRating,
+                        onRatingChange = onRatingChange,
+
+                        totalPages = editedTotalPages,
+                        onTotalPagesChange = onTotalPagesChange,
+
+                        currentPage = editedCurrentPage,
+                        onCurrentPageChange = onCurrentPageChange
+                    )
+
+                } else {
+
+                    BookCard(
+                        title = editedTitle,
+                        author = editedAuthor
+                    ) {
+
+                        BookInfoActions(
+                            book = book,
+                            onContinueClick = onContinueClick,
+                            onFinishBookClick = onFinishBookClick
+                        )
+                    }
+                }
             }
 
             item {
 
                 Column(
+
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(Dimens.cornerRadius))
+                        .clip(
+                            RoundedCornerShape(
+                                Dimens.cornerRadius
+                            )
+                        )
                         .background(Surface)
                         .padding(Dimens.paddingMedium)
                 ) {
 
                     Text(
-                        text = "Заметки и цитаты",
+                        text = stringResource(R.string.note_and_citation),
                         style = AppTypography.titleMedium,
                         color = OnSurface
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    book.notes.forEach { note ->
+                    if (book.notes.isEmpty()) {
 
-                        NoteCard(note)
+                        Text(
+                            text = stringResource(R.string.no_notes_yet),
+                            style = AppTypography.bodyMedium,
+                            color = OnSurface.copy(alpha = 0.6f),
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
 
                         Spacer(modifier = Modifier.height(12.dp))
+
+                    } else {
+
+                        book.notes.forEach { note ->
+
+                            NoteCard(note)
+
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
                 }
-                        }
+            }
         }
     }
-    if (showDialog.value) {
+}
 
-        AddNoteDialog(
+@Composable
+private fun BookInfoActions(
+    book: Book,
+    onContinueClick: (Book) -> Unit,
+    onFinishBookClick: (Book) -> Unit
+) {
 
-            onDismiss = {
-                showDialog.value = false
+    val progress =
+        if (book.totalPages > 0) {
+            (book.currentPage * 100) / book.totalPages
+        } else {
+            0
+        }
+
+    Column(
+
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            BookInfoChip(
+                text = book.category
+            )
+
+            BookInfoChip(
+                text = statusToText(book.status)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "${book.currentPage} из ${book.totalPages} стр. ($progress%)",
+            style = AppTypography.bodyMedium,
+            color = OnSurface,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        PrimaryButton(
+
+            text = stringResource(R.string.cont),
+
+            onClick = {
+                onContinueClick(book)
             },
 
-            onConfirm = { text ->
+            leadingIcon = {
 
-                // пока просто закрываем
-                // позже подключим ViewModel
+                Icon(
+                    painter = painterResource(R.drawable.triangle_play),
+                    contentDescription = null,
+                    tint = OnSurface,
 
-                showDialog.value = false
-            }
+                    modifier = Modifier
+                        .size(20.dp)
+                        .rotate(180f)
+                )
+            },
+
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+
+            onClick = {
+                onFinishBookClick(book)
+            },
+
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Primary.copy(alpha = 0.45f),
+                contentColor = OnSurface.copy(alpha = 0.8f)
+            ),
+
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Icon(
+                Icons.Default.Check,
+                contentDescription = null
+            )
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            Text("Завершить")
+        }
+    }
+}
+
+@Composable
+private fun NoteCard(
+    note: ReadingNote
+) {
+
+    Box(
+
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(SurfaceVariant.copy(alpha = 0.5f))
+            .padding(16.dp)
+    ) {
+
+        Text(
+            text = note.text,
+            style = AppTypography.bodyMedium,
+            color = OnSurface
         )
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun BookDetailsScreenPreview() {
+private fun BookInfoChip(
+    text: String
+) {
 
-    val fakeBook = Book(
-        id = 1,
-        title = "Ночь в Лиссабоне",
-        author = "Эрих Мария Ремарк",
-        category = "Роман",
-        rating = 4,
-        totalPages = 300,
-        currentPage = 130,
-        status = ReadingStatus.READING,
-        notes = listOf(
-            ReadingNote(
-                id = 1,
-                text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum turpis."
-            ),
-            ReadingNote(
-                id = 2,
-                text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+    Box(
+
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(
+                SurfaceVariant.copy(alpha = 0.7f)
             )
+            .padding(
+                horizontal = 12.dp,
+                vertical = 6.dp
+            )
+    ) {
+
+        Text(
+            text = text,
+            style = AppTypography.bodySmall,
+            color = OnSurface
         )
-    )
+    }
+}
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFF6F1E9
+)
+@Composable
+private fun BookDetailsContentPreview() {
 
     ReadDiaryTheme {
 
         BookDetailsContent(
-            book = fakeBook
+
+            book = Book(
+                id = 1,
+                title = "1984",
+                author = "George Orwell",
+                category = "Классика",
+                status = ReadingStatus.READING,
+                rating = 4,
+                totalPages = 340,
+                currentPage = 120,
+                notes = listOf(
+                    ReadingNote(1,
+                        "Свобода — это возможность сказать, что дважды два — четыре."
+                    )
+                )
+            ),
+
+            editedTitle = "1984",
+            onTitleChange = {},
+
+            editedAuthor = "George Orwell",
+            onAuthorChange = {},
+
+            editedCategory = "Классика",
+            onCategoryChange = {},
+
+            editedStatus = ReadingStatus.READING,
+            onStatusChange = {},
+
+            editedRating = 4,
+            onRatingChange = {},
+
+            editedTotalPages = "340",
+            onTotalPagesChange = {},
+
+            editedCurrentPage = "120",
+            onCurrentPageChange = {},
+
+            isEditing = false,
+            onEditClick = {},
+
+            onBackClick = {},
+            onContinueClick = {},
+            onAddNoteClick = {},
+            onFinishBookClick = {}
+        )
+    }
+}
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFF6F1E9
+)
+@Composable
+private fun BookDetailsContentEditingPreview() {
+
+    ReadDiaryTheme {
+
+        BookDetailsContent(
+
+            book = Book(
+                id = 1,
+                title = "1984",
+                author = "George Orwell",
+                category = "Классика",
+                status = ReadingStatus.READING,
+                rating = 4,
+                totalPages = 340,
+                currentPage = 120,
+                notes = emptyList()
+            ),
+
+            editedTitle = "1984",
+            onTitleChange = {},
+
+            editedAuthor = "George Orwell",
+            onAuthorChange = {},
+
+            editedCategory = "Классика",
+            onCategoryChange = {},
+
+            editedStatus = ReadingStatus.READING,
+            onStatusChange = {},
+
+            editedRating = 4,
+            onRatingChange = {},
+
+            editedTotalPages = "340",
+            onTotalPagesChange = {},
+
+            editedCurrentPage = "120",
+            onCurrentPageChange = {},
+
+            isEditing = true,
+            onEditClick = {},
+
+            onBackClick = {},
+            onContinueClick = {},
+            onAddNoteClick = {},
+            onFinishBookClick = {}
         )
     }
 }
