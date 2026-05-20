@@ -1,12 +1,17 @@
 package com.mariii.readdiary.ui.components.book
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,20 +28,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.mariii.readdiary.R
 import com.mariii.readdiary.domain.model.ReadingStatus
 import com.mariii.readdiary.ui.components.rating.RatingBar
 import com.mariii.readdiary.ui.theme.AppTypography
 import com.mariii.readdiary.ui.theme.Dimens
 import com.mariii.readdiary.ui.theme.OnSurface
-import com.mariii.readdiary.ui.theme.ReadDiaryTheme
-import com.mariii.readdiary.ui.theme.SurfaceVariant
-import androidx.compose.foundation.layout.padding
 import com.mariii.readdiary.ui.theme.Surface
+import com.mariii.readdiary.ui.theme.SurfaceVariant
 
 @Composable
 fun EditableBookContent(
@@ -60,7 +65,12 @@ fun EditableBookContent(
     onTotalPagesChange: (String) -> Unit,
 
     currentPage: String,
-    onCurrentPageChange: (String) -> Unit
+    onCurrentPageChange: (String) -> Unit,
+
+    coverUri: String,
+    onCoverUriChange: (String) -> Unit,
+
+    editable: Boolean = true
 ) {
 
     var categoryExpanded by remember {
@@ -80,6 +90,23 @@ fun EditableBookContent(
         "Классика"
     )
 
+    val context = LocalContext.current
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+
+        uri?.let {
+
+            context.contentResolver.takePersistableUriPermission(
+                it,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+
+            onCoverUriChange(it.toString())
+        }
+    }
+
     Row(
 
         modifier = Modifier
@@ -96,16 +123,51 @@ fun EditableBookContent(
         // ОБЛОЖКА
 
         Box(
-            modifier = Modifier
-                .size(
-                    width = 100.dp,
-                    height = 170.dp
+
+            modifier = Modifier.clickable {
+
+                if (editable) {
+                    galleryLauncher.launch(arrayOf("image/*"))
+                }
+            }
+        ) {
+
+            if (coverUri.isNotBlank()) {
+
+                AsyncImage(
+
+                    model = coverUri,
+
+                    contentDescription = null,
+
+                    contentScale = ContentScale.Crop,
+
+                    modifier = Modifier
+                        .size(
+                            width = 100.dp,
+                            height = 170.dp
+                        )
+                        .clip(
+                            RoundedCornerShape(12.dp)
+                        )
                 )
-                .clip(
-                    RoundedCornerShape(12.dp)
+
+            } else {
+
+                Box(
+
+                    modifier = Modifier
+                        .size(
+                            width = 100.dp,
+                            height = 170.dp
+                        )
+                        .clip(
+                            RoundedCornerShape(12.dp)
+                        )
+                        .background(SurfaceVariant)
                 )
-                .background(SurfaceVariant)
-        )
+            }
+        }
 
         Spacer(
             modifier = Modifier.width(
@@ -290,7 +352,7 @@ private fun MinimalTextField(
                 Text(
                     text = placeholder,
                     style = textStyle,
-                    color = OnSurface.copy(alpha = 0.5f)
+                    color = OnSurface.copy(alpha = 0.9f)
                 )
             }
 
@@ -368,44 +430,46 @@ fun statusToText(
     }
 }
 
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFF6F1E9
-)
-@Composable
-private fun EditableBookContentPreview() {
-
-    ReadDiaryTheme {
-
-        EditableBookContent(
-
-            title = "1984",
-
-            onTitleChange = {},
-
-            author = "George Orwell",
-
-            onAuthorChange = {},
-
-            category = "Классика",
-
-            onCategoryChange = {},
-
-            status = ReadingStatus.READING,
-
-            onStatusChange = {},
-
-            rating = 4,
-
-            onRatingChange = {},
-
-            totalPages = "340",
-
-            onTotalPagesChange = {},
-
-            currentPage = "120",
-
-            onCurrentPageChange = {}
-        )
-    }
-}
+//@Preview(
+//    showBackground = true,
+//    backgroundColor = 0xFFF6F1E9
+//)
+//@Composable
+//private fun EditableBookContentPreview() {
+//
+//    ReadDiaryTheme {
+//
+//        EditableBookContent(
+//
+//            title = "1984",
+//
+//            onTitleChange = {},
+//
+//            author = "George Orwell",
+//
+//            onAuthorChange = {},
+//
+//            category = "Классика",
+//
+//            onCategoryChange = {},
+//
+//            status = ReadingStatus.READING,
+//
+//            onStatusChange = {},
+//
+//            rating = 4,
+//
+//            onRatingChange = {},
+//
+//            totalPages = "340",
+//
+//            onTotalPagesChange = {},
+//
+//            currentPage = "120",
+//
+//            onCurrentPageChange = {},
+//
+//            coverUrl = ""
+//        )
+//    }
+//}

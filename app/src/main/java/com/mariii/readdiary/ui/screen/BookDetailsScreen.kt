@@ -44,7 +44,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mariii.readdiary.R
@@ -62,7 +61,6 @@ import com.mariii.readdiary.ui.theme.Background
 import com.mariii.readdiary.ui.theme.Dimens
 import com.mariii.readdiary.ui.theme.OnSurface
 import com.mariii.readdiary.ui.theme.Primary
-import com.mariii.readdiary.ui.theme.ReadDiaryTheme
 import com.mariii.readdiary.ui.theme.Surface
 import com.mariii.readdiary.ui.theme.SurfaceVariant
 import com.mariii.readdiary.ui.viewmodel.BookViewModel
@@ -120,6 +118,10 @@ fun BookDetailsScreen(
         mutableStateOf(book.currentPage.toString())
     }
 
+    var editedCoverUri by remember {
+        mutableStateOf(book.coverUri)
+    }
+
     BookDetailsContent(
 
         book = book,
@@ -159,6 +161,11 @@ fun BookDetailsScreen(
             editedCurrentPage = it
         },
 
+        coverUri = editedCoverUri,
+        onCoverUriChange = {
+            editedCoverUri = it
+        },
+
         isEditing = isEditing,
 
         onEditClick = {
@@ -173,8 +180,14 @@ fun BookDetailsScreen(
                         category = editedCategory,
                         status = editedStatus,
                         rating = editedRating,
-                        totalPages = editedTotalPages.toIntOrNull() ?: 0,
-                        currentPage = editedCurrentPage.toIntOrNull() ?: 0
+
+                        totalPages =
+                            editedTotalPages.toIntOrNull() ?: 0,
+
+                        currentPage =
+                            editedCurrentPage.toIntOrNull() ?: 0,
+
+                        coverUri = editedCoverUri
                     )
                 )
             }
@@ -268,6 +281,9 @@ private fun BookDetailsContent(
 
     editedCurrentPage: String,
     onCurrentPageChange: (String) -> Unit,
+
+    coverUri: String,
+    onCoverUriChange: (String) -> Unit,
 
     isEditing: Boolean,
     onEditClick: () -> Unit,
@@ -387,14 +403,19 @@ private fun BookDetailsContent(
                         onTotalPagesChange = onTotalPagesChange,
 
                         currentPage = editedCurrentPage,
-                        onCurrentPageChange = onCurrentPageChange
+                        onCurrentPageChange = onCurrentPageChange,
+
+                        coverUri = coverUri,
+                        onCoverUriChange = onCoverUriChange,
+
                     )
 
                 } else {
 
                     BookCard(
                         title = editedTitle,
-                        author = editedAuthor
+                        author = editedAuthor,
+                        coverUri = coverUri
                     ) {
 
                         BookInfoActions(
@@ -434,7 +455,7 @@ private fun BookDetailsContent(
                         Text(
                             text = stringResource(R.string.no_notes_yet),
                             style = AppTypography.bodyMedium,
-                            color = OnSurface.copy(alpha = 0.6f),
+                            color = OnSurface.copy(alpha = 0.9f),
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )
@@ -533,8 +554,8 @@ private fun BookInfoActions(
             },
 
             colors = ButtonDefaults.buttonColors(
-                containerColor = Primary.copy(alpha = 0.45f),
-                contentColor = OnSurface.copy(alpha = 0.8f)
+                containerColor = Primary.copy(alpha = 0.85f),
+                contentColor = OnSurface.copy(alpha = 0.9f)
             ),
 
             modifier = Modifier.fillMaxWidth()
@@ -562,7 +583,7 @@ private fun NoteCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(SurfaceVariant.copy(alpha = 0.5f))
+            .background(SurfaceVariant.copy(alpha = 0.9f))
             .padding(16.dp)
     ) {
 
@@ -584,7 +605,7 @@ private fun BookInfoChip(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(
-                SurfaceVariant.copy(alpha = 0.7f)
+                SurfaceVariant.copy(alpha = 0.9f)
             )
             .padding(
                 horizontal = 12.dp,
@@ -600,116 +621,118 @@ private fun BookInfoChip(
     }
 }
 
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFF6F1E9
-)
-@Composable
-private fun BookDetailsContentPreview() {
-
-    ReadDiaryTheme {
-
-        BookDetailsContent(
-
-            book = Book(
-                id = 1,
-                title = "1984",
-                author = "George Orwell",
-                category = "Классика",
-                status = ReadingStatus.READING,
-                rating = 4,
-                totalPages = 340,
-                currentPage = 120,
-                notes = listOf(
-                    ReadingNote(1,
-                        "Свобода — это возможность сказать, что дважды два — четыре."
-                    )
-                )
-            ),
-
-            editedTitle = "1984",
-            onTitleChange = {},
-
-            editedAuthor = "George Orwell",
-            onAuthorChange = {},
-
-            editedCategory = "Классика",
-            onCategoryChange = {},
-
-            editedStatus = ReadingStatus.READING,
-            onStatusChange = {},
-
-            editedRating = 4,
-            onRatingChange = {},
-
-            editedTotalPages = "340",
-            onTotalPagesChange = {},
-
-            editedCurrentPage = "120",
-            onCurrentPageChange = {},
-
-            isEditing = false,
-            onEditClick = {},
-
-            onBackClick = {},
-            onContinueClick = {},
-            onAddNoteClick = {},
-            onFinishBookClick = {}
-        )
-    }
-}
-
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFF6F1E9
-)
-@Composable
-private fun BookDetailsContentEditingPreview() {
-
-    ReadDiaryTheme {
-
-        BookDetailsContent(
-
-            book = Book(
-                id = 1,
-                title = "1984",
-                author = "George Orwell",
-                category = "Классика",
-                status = ReadingStatus.READING,
-                rating = 4,
-                totalPages = 340,
-                currentPage = 120,
-                notes = emptyList()
-            ),
-
-            editedTitle = "1984",
-            onTitleChange = {},
-
-            editedAuthor = "George Orwell",
-            onAuthorChange = {},
-
-            editedCategory = "Классика",
-            onCategoryChange = {},
-
-            editedStatus = ReadingStatus.READING,
-            onStatusChange = {},
-
-            editedRating = 4,
-            onRatingChange = {},
-
-            editedTotalPages = "340",
-            onTotalPagesChange = {},
-
-            editedCurrentPage = "120",
-            onCurrentPageChange = {},
-
-            isEditing = true,
-            onEditClick = {},
-
-            onBackClick = {},
-            onContinueClick = {},
-            onAddNoteClick = {},
-            onFinishBookClick = {}
-        )
-    }
-}
+//@Preview(
+//    showBackground = true,
+//    backgroundColor = 0xFFF6F1E9
+//)
+//@Composable
+//private fun BookDetailsContentPreview() {
+//
+//    ReadDiaryTheme {
+//
+//        BookDetailsContent(
+//
+//            book = Book(
+//                id = 1,
+//                title = "1984",
+//                author = "George Orwell",
+//                category = "Классика",
+//                status = ReadingStatus.READING,
+//                rating = 4,
+//                totalPages = 340,
+//                currentPage = 120,
+//                notes = listOf(
+//                    ReadingNote(1,
+//                        "Свобода — это возможность сказать, что дважды два — четыре."
+//                    )
+//                )
+//            ),
+//
+//            editedTitle = "1984",
+//            onTitleChange = {},
+//
+//            editedAuthor = "George Orwell",
+//            onAuthorChange = {},
+//
+//            editedCategory = "Классика",
+//            onCategoryChange = {},
+//
+//            editedStatus = ReadingStatus.READING,
+//            onStatusChange = {},
+//
+//            editedRating = 4,
+//            onRatingChange = {},
+//
+//            editedTotalPages = "340",
+//            onTotalPagesChange = {},
+//
+//            editedCurrentPage = "120",
+//            onCurrentPageChange = {},
+//
+//            coverUrl = "",
+//
+//            isEditing = false,
+//            onEditClick = {},
+//
+//            onBackClick = {},
+//            onContinueClick = {},
+//            onAddNoteClick = {},
+//            onFinishBookClick = {}
+//        )
+//    }
+//}
+//
+//@Preview(
+//    showBackground = true,
+//    backgroundColor = 0xFFF6F1E9
+//)
+//@Composable
+//private fun BookDetailsContentEditingPreview() {
+//
+//    ReadDiaryTheme {
+//
+//        BookDetailsContent(
+//
+//            book = Book(
+//                id = 1,
+//                title = "1984",
+//                author = "George Orwell",
+//                category = "Классика",
+//                status = ReadingStatus.READING,
+//                rating = 4,
+//                totalPages = 340,
+//                currentPage = 120,
+//                notes = emptyList()
+//            ),
+//
+//            editedTitle = "1984",
+//            onTitleChange = {},
+//
+//            editedAuthor = "George Orwell",
+//            onAuthorChange = {},
+//
+//            editedCategory = "Классика",
+//            onCategoryChange = {},
+//
+//            editedStatus = ReadingStatus.READING,
+//            onStatusChange = {},
+//
+//            editedRating = 4,
+//            onRatingChange = {},
+//
+//            editedTotalPages = "340",
+//            onTotalPagesChange = {},
+//
+//            editedCurrentPage = "120",
+//            onCurrentPageChange = {},
+//
+//            isEditing = true,
+//            onEditClick = {},
+//
+//            onBackClick = {},
+//            onContinueClick = {},
+//            onAddNoteClick = {},
+//            onFinishBookClick = {}
+//        )
+//    }
+//}

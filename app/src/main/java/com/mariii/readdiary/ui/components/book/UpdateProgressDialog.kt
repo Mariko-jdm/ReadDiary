@@ -134,7 +134,7 @@ fun UpdateProgressDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
 
-                    Text(stringResource(R.string.finish_book))
+                    Text(stringResource(R.string.finish_book), color = OnSurface)
                 }
             }
         },

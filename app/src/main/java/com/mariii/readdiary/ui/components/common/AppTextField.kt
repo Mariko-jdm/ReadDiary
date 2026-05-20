@@ -1,11 +1,15 @@
 package com.mariii.readdiary.ui.components.common
 
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.mariii.readdiary.ui.theme.*
+import com.mariii.readdiary.ui.theme.Dimens
+import com.mariii.readdiary.ui.theme.OnSurface
+import com.mariii.readdiary.ui.theme.Outline
+import com.mariii.readdiary.ui.theme.Primary
 
 @Composable
 fun AppTextField(
@@ -18,7 +22,7 @@ fun AppTextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = {
-            Text(placeholder, color = OnSurface.copy(alpha = 0.5f))
+            Text(placeholder, color = OnSurface.copy(alpha = 0.9f))
         },
         modifier = modifier,
         shape = RoundedCornerShape(Dimens.cornerRadius),

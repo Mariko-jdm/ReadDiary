@@ -17,7 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.mariii.readdiary.domain.model.Book
 import com.mariii.readdiary.ui.components.state.EmptyState
 import com.mariii.readdiary.ui.theme.AppTypography
@@ -80,15 +82,40 @@ private fun BookGridItem(
             }
     ) {
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(0.7f)
-                .clip(RoundedCornerShape(8.dp))
-                .background(SurfaceVariant)
-        )
+        if (book.coverUri.isNotBlank()) {
 
-        Spacer(modifier = Modifier.height(8.dp))
+            AsyncImage(
+
+                model = book.coverUri,
+
+                contentDescription = null,
+
+                contentScale = ContentScale.Crop,
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(0.7f)
+                    .clip(
+                        RoundedCornerShape(8.dp)
+                    )
+            )
+
+        } else {
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(0.7f)
+                    .clip(
+                        RoundedCornerShape(8.dp)
+                    )
+                    .background(SurfaceVariant)
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
 
         Text(
             text = book.title,
@@ -100,7 +127,7 @@ private fun BookGridItem(
         Text(
             text = book.author,
             style = AppTypography.bodySmall,
-            color = OnSurface.copy(alpha = 0.7f),
+            color = OnSurface.copy(alpha = 0.9f),
             maxLines = 1
         )
     }

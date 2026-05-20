@@ -157,7 +157,7 @@ fun ProgressSection(
         LinearProgressIndicator(
             progress = { goalProgress },
             color = Primary,
-            trackColor = Outline.copy(alpha = 0.3f),
+            trackColor = Outline.copy(alpha = 0.9f),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp)

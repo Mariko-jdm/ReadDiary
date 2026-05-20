@@ -99,6 +99,11 @@ fun AddBookScreenContent(
         mutableStateOf(ReadingStatus.PLANNED)
     }
 
+    var coverUri by remember {
+        mutableStateOf("")
+    }
+
+
     var searchQuery by remember {
         mutableStateOf("")
     }
@@ -228,7 +233,12 @@ fun AddBookScreenContent(
                 currentPage = currentPage,
                 onCurrentPageChange = {
                     currentPage = it
-                }
+                },
+
+                coverUri = coverUri,
+                onCoverUriChange = {
+                    coverUri = it
+                },
             )
 
             Spacer(
@@ -306,6 +316,9 @@ fun AddBookScreenContent(
 
                         status =
                             selectedBook.status
+
+                        coverUri =
+                            selectedBook.coverUri
                     }
                 )
             }

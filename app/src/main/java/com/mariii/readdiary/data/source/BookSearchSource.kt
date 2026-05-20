@@ -11,24 +11,26 @@ object BookSearchSource {
 
             Book(
                 id = 1,
-                title = "1984",
-                author = "Джордж Оруэлл",
-                category = "Антиутопия",
+                title = "В погоне за ускользающим светом",
+                author = "О`Келли Юджин",
+                category = "Психология",
                 rating = 0,
-                totalPages = 328,
+                totalPages = 176,
                 currentPage = 0,
-                status = ReadingStatus.PLANNED
+                status = ReadingStatus.PLANNED,
+                coverUri = "android.resource://com.mariii.readdiary/drawable/book1"
             ),
 
             Book(
                 id = 2,
-                title = "Мартин Иден",
-                author = "Джек Лондон",
-                category = "Роман",
+                title = "Беседы",
+                author = "Эпиктет",
+                category = "Философия",
                 rating = 0,
                 totalPages = 480,
                 currentPage = 0,
-                status = ReadingStatus.PLANNED
+                status = ReadingStatus.PLANNED,
+                coverUri = "android.resource://com.mariii.readdiary/drawable/book2"
             ),
 
             Book(
@@ -39,7 +41,8 @@ object BookSearchSource {
                 rating = 0,
                 totalPages = 300,
                 currentPage = 0,
-                status = ReadingStatus.PLANNED
+                status = ReadingStatus.PLANNED,
+                coverUri = "android.resource://com.mariii.readdiary/drawable/book3"
             )
         )
     }

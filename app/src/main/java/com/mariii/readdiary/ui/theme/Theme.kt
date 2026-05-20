@@ -1,6 +1,7 @@
 package com.mariii.readdiary.ui.theme
 
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val LightColorScheme = lightColorScheme(
@@ -9,7 +10,7 @@ private val LightColorScheme = lightColorScheme(
     surface = Surface,
     onPrimary = Surface,
     onBackground = OnBackground,
-    onSurface = OnSurface
+    onSurface = OnSurface,
 )
 
 @Composable

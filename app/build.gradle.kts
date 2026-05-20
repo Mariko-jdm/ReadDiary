@@ -55,6 +55,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(libs.coil.compose)
     implementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.androidx.compose.ui)

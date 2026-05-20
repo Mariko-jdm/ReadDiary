@@ -41,7 +41,7 @@ fun EmptyState(
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.MenuBook,
             contentDescription = null,
-            tint = OnSurface.copy(alpha = 0.4f),
+            tint = OnSurface.copy(alpha = 0.8f),
             modifier = Modifier.size(48.dp)
         )
 
@@ -50,7 +50,7 @@ fun EmptyState(
         Text(
             text = text,
             style = AppTypography.bodyMedium,
-            color = OnSurface.copy(alpha = 0.7f)
+            color = OnSurface.copy(alpha = 0.9f)
         )
 
         //  опциональная кнопка

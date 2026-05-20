@@ -8,12 +8,14 @@ data class Book(
     val category: String = "",
     val rating: Int = 0,
 
-    val totalPages: Int,
-    val currentPage: Int,
+    val totalPages: Int = 0,
+    val currentPage: Int = 0,
 
-    val status: ReadingStatus,
+    val status: ReadingStatus = ReadingStatus.PLANNED,
 
-    val notes: List<ReadingNote> = emptyList()
+    val notes: List<ReadingNote> = emptyList(),
+
+    val coverUri: String = ""
 ) {
 
     val progressText: String

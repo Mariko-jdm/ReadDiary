@@ -203,7 +203,8 @@ fun HomeScreenContent(
 
                         BookCard(
                             title = book.title,
-                            author = book.author
+                            author = book.author,
+                            coverUri = book.coverUri
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
