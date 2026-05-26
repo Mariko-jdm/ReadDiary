@@ -138,20 +138,23 @@ fun HomeScreen(
 
             onDismiss = {
                 showNoteDialog = false
+                selectedBook = null
             },
 
             onConfirm = { noteText ->
 
                 selectedBook?.let { book ->
 
+                    val newNote = ReadingNote(
+
+                        id = kotlin.random.Random.nextInt(),
+
+                        text = noteText
+                    )
+
                     viewModel.addNoteToBook(
-
                         bookId = book.id,
-
-                        note = ReadingNote(
-                            id = 0,
-                            text = noteText
-                        )
+                        note = newNote
                     )
                 }
 

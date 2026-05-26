@@ -2,6 +2,7 @@ package com.mariii.readdiary.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.mariii.readdiary.domain.model.ReadingNote
 import com.mariii.readdiary.domain.model.ReadingStatus
 
 @Entity(tableName = "books")
@@ -22,5 +23,7 @@ data class BookEntity(
 
     val status: ReadingStatus,
 
-    val coverUri: String = ""
+    val coverUri: String = "",
+
+    val notes: List<ReadingNote> = emptyList()
 )

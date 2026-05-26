@@ -4,16 +4,14 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.mariii.readdiary.data.local.dao.BookDao
-import com.mariii.readdiary.data.local.dao.ReadingNoteDao
 import com.mariii.readdiary.data.local.entity.BookEntity
-import com.mariii.readdiary.data.local.entity.ReadingNoteEntity
 
 @Database(
     entities = [
-        BookEntity::class,
-        ReadingNoteEntity::class
+        BookEntity::class
     ],
-    version = 2
+    version = 3,
+    exportSchema = false
 )
 
 @TypeConverters(Converters::class)
@@ -21,6 +19,4 @@ import com.mariii.readdiary.data.local.entity.ReadingNoteEntity
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun bookDao(): BookDao
-
-    abstract fun readingNoteDao(): ReadingNoteDao
 }

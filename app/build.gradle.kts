@@ -55,6 +55,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(libs.gson)
+
     implementation(libs.coil.compose)
     implementation(platform(libs.androidx.compose.bom))
 

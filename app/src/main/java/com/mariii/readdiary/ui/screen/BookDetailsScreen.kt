@@ -3,6 +3,7 @@
 package com.mariii.readdiary.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -122,6 +126,14 @@ fun BookDetailsScreen(
         mutableStateOf(book.coverUri)
     }
 
+    var selectedNote by remember {
+        mutableStateOf<ReadingNote?>(null)
+    }
+
+    var showDeleteDialog by remember {
+        mutableStateOf(false)
+    }
+
     BookDetailsContent(
 
         book = book,
@@ -214,6 +226,14 @@ fun BookDetailsScreen(
                 newPage = it.totalPages,
                 newStatus = ReadingStatus.FINISHED
             )
+        },
+
+        onDeleteClick = {
+            showDeleteDialog = true
+        },
+
+        onNoteClick = { note ->
+            selectedNote = note
         }
     )
 
@@ -248,9 +268,106 @@ fun BookDetailsScreen(
                 showAddNoteDialog = false
             },
 
-            onConfirm = {
+            onConfirm = { noteText ->
+
+                viewModel.addNoteToBook(
+
+                    bookId = book.id,
+
+                    note = ReadingNote(
+                        id = System.currentTimeMillis().toInt(),
+                        text = noteText
+                    )
+                )
 
                 showAddNoteDialog = false
+            }
+        )
+    }
+
+    if (showDeleteDialog) {
+
+        AlertDialog(
+
+            onDismissRequest = {
+                showDeleteDialog = false
+            },
+
+            title = {
+                Text("Удалить книгу?")
+            },
+
+            text = {
+                Text("Это действие нельзя отменить")
+            },
+
+            confirmButton = {
+
+                TextButton(
+
+                    onClick = {
+
+                        viewModel.deleteBook(book)
+
+                        showDeleteDialog = false
+
+                        navController.popBackStack()
+                    }
+                ) {
+
+                    Text(stringResource(R.string.delete), color = OnSurface)
+                }
+            },
+
+            dismissButton = {
+
+                TextButton(
+
+                    onClick = {
+                        showDeleteDialog = false
+                    }
+                ) {
+
+                    Text(stringResource(R.string.cancel), color = OnSurface)
+                }
+            }
+        )
+    }
+
+    selectedNote?.let { note ->
+
+        AddNoteDialog(
+
+            initialText = note.text,
+
+            title = "Редактировать заметку",
+
+            onDismiss = {
+                selectedNote = null
+            },
+
+            onDelete = {
+
+                viewModel.deleteNoteFromBook(
+                    bookId = book.id,
+                    noteId = note.id
+                )
+
+                selectedNote = null
+            },
+
+            onConfirm = { updatedText ->
+
+                viewModel.updateNoteInBook(
+
+                    bookId = book.id,
+
+                    updatedNote = note.copy(
+                        text = updatedText
+                    )
+                )
+
+                selectedNote = null
             }
         )
     }
@@ -291,7 +408,10 @@ private fun BookDetailsContent(
     onBackClick: () -> Unit,
     onContinueClick: (Book) -> Unit,
     onAddNoteClick: () -> Unit,
-    onFinishBookClick: (Book) -> Unit
+    onFinishBookClick: (Book) -> Unit,
+
+    onDeleteClick: () -> Unit,
+    onNoteClick: (ReadingNote) -> Unit
 ) {
 
     Scaffold(
@@ -346,6 +466,20 @@ private fun BookDetailsContent(
 
                 actions = {
 
+                    if (isEditing) {
+
+                        IconButton(
+
+                            onClick = onDeleteClick
+                        ) {
+
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = null
+                            )
+                        }
+                    }
+
                     IconButton(
                         onClick = onEditClick
                     ) {
@@ -360,12 +494,14 @@ private fun BookDetailsContent(
                             contentDescription = null
                         )
                     }
+
                 },
 
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Background
                 )
             )
+
         }
     ) { padding ->
 
@@ -466,7 +602,14 @@ private fun BookDetailsContent(
 
                         book.notes.forEach { note ->
 
-                            NoteCard(note)
+                            NoteCard(
+
+                                note = note,
+
+                                onClick = {
+                                    onNoteClick(note)
+                                }
+                            )
 
                             Spacer(modifier = Modifier.height(12.dp))
                         }
@@ -575,7 +718,8 @@ private fun BookInfoActions(
 
 @Composable
 private fun NoteCard(
-    note: ReadingNote
+    note: ReadingNote,
+    onClick: () -> Unit
 ) {
 
     Box(
@@ -583,6 +727,9 @@ private fun NoteCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
+            .clickable {
+                onClick()
+            }
             .background(SurfaceVariant.copy(alpha = 0.9f))
             .padding(16.dp)
     ) {

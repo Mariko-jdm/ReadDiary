@@ -40,19 +40,6 @@ class BookViewModel(
             repository.deleteBook(book)
         }
     }
-    fun addNoteToBook(
-        bookId: Int,
-        note: ReadingNote
-    ) {
-        val book = books.value.find {
-            it.id == bookId
-        } ?: return
-        updateBook(
-            book.copy(
-                notes = book.notes + note
-            )
-        )
-    }
     fun updateReadingProgress(
         book: Book,
         newPage: Int,
@@ -67,4 +54,62 @@ class BookViewModel(
             )
         }
     }
+    fun addNoteToBook(
+        bookId: Int,
+        note: ReadingNote
+    ) {
+
+        val book = books.value.find {
+            it.id == bookId
+        } ?: return
+
+        updateBook(
+
+            book.copy(
+                notes = book.notes + note
+            )
+        )
+    }
+    fun updateNoteInBook(
+        bookId: Int,
+        updatedNote: ReadingNote
+    ) {
+
+        val book = books.value.find {
+            it.id == bookId
+        } ?: return
+
+        val updatedNotes = book.notes.map { note ->
+
+            if (note.id == updatedNote.id) {
+                updatedNote
+            } else {
+                note
+            }
+        }
+
+        updateBook(
+            book.copy(
+                notes = updatedNotes
+            )
+        )
+    }
+    fun deleteNoteFromBook(
+        bookId: Int,
+        noteId: Int
+    ) {
+
+        val book = books.value.find {
+            it.id == bookId
+        } ?: return
+
+        updateBook(
+            book.copy(
+                notes = book.notes.filter {
+                    it.id != noteId
+                }
+            )
+        )
+    }
+
 }

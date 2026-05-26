@@ -15,7 +15,7 @@ fun BookEntity.toDomain(): Book {
         currentPage = currentPage,
         status = status,
         coverUri = coverUri,
-        notes = emptyList()
+        notes = notes
     )
 }
 
@@ -30,6 +30,7 @@ fun Book.toEntity(): BookEntity {
         totalPages = totalPages,
         currentPage = currentPage,
         status = status,
-        coverUri = coverUri
+        coverUri = coverUri,
+        notes = notes
     )
 }
