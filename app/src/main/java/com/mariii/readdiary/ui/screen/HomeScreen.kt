@@ -42,6 +42,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mariii.readdiary.R
 import com.mariii.readdiary.domain.model.Book
+import com.mariii.readdiary.domain.model.ReadingNote
+import com.mariii.readdiary.domain.model.ReadingStatus
 import com.mariii.readdiary.navigation.Screen
 import com.mariii.readdiary.ui.components.book.BookCard
 import com.mariii.readdiary.ui.components.book.BookGrid
@@ -59,9 +61,6 @@ import com.mariii.readdiary.ui.theme.Primary
 import com.mariii.readdiary.ui.theme.Surface
 import com.mariii.readdiary.ui.viewmodel.BookViewModel
 
-// -------------------------
-// основной экран (с навигацией)
-// -------------------------
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -69,6 +68,10 @@ fun HomeScreen(
 ) {
 
     val books by viewModel.books.collectAsState()
+
+    val readingBooks = books.filter {
+        it.status == ReadingStatus.READING
+    }
 
     var selectedBook by remember {
         mutableStateOf<Book?>(null)
@@ -78,8 +81,10 @@ fun HomeScreen(
         mutableStateOf(false)
     }
 
+
+
     HomeScreenContent(
-        books = books,
+        books = readingBooks,
 
         onAddClick = {
             navController.navigate(Screen.AddBook.route)
@@ -95,7 +100,9 @@ fun HomeScreen(
             selectedBook = book
         },
 
-        onAddNoteClick = {
+        onAddNoteClick = { book ->
+
+            selectedBook = book
             showNoteDialog = true
         }
     )
@@ -133,11 +140,23 @@ fun HomeScreen(
                 showNoteDialog = false
             },
 
-            onConfirm = {
+            onConfirm = { noteText ->
 
-                // позже добавим сохранение заметок
+                selectedBook?.let { book ->
+
+                    viewModel.addNoteToBook(
+
+                        bookId = book.id,
+
+                        note = ReadingNote(
+                            id = 0,
+                            text = noteText
+                        )
+                    )
+                }
 
                 showNoteDialog = false
+                selectedBook = null
             }
         )
     }
@@ -153,7 +172,7 @@ fun HomeScreenContent(
     onAddClick: () -> Unit,
     onBookClick: (Book) -> Unit,
     onContinueClick: (Book) -> Unit,
-    onAddNoteClick: () -> Unit
+    onAddNoteClick: (Book) -> Unit
 ) {
 
     Scaffold(
@@ -242,7 +261,7 @@ fun HomeScreenContent(
                                 Text(
                                     text = stringResource(R.string.add_note),
                                     modifier = Modifier.clickable {
-                                        onAddNoteClick()
+                                        onAddNoteClick(book)
                                     },
                                     style = AppTypography.bodyMedium.copy(
                                         textDecoration = TextDecoration.Underline

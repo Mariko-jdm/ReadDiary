@@ -13,7 +13,7 @@ import com.mariii.readdiary.data.local.entity.ReadingNoteEntity
         BookEntity::class,
         ReadingNoteEntity::class
     ],
-    version = 1
+    version = 2
 )
 
 @TypeConverters(Converters::class)

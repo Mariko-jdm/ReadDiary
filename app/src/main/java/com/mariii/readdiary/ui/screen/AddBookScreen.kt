@@ -171,7 +171,9 @@ fun AddBookScreenContent(
                                     currentPage =
                                         currentPage.toIntOrNull() ?: 0,
 
-                                    status = status
+                                    status = status,
+
+                                    coverUri = coverUri,
                                 )
                             )
                         }

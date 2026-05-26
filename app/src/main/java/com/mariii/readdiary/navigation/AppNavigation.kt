@@ -66,7 +66,7 @@ fun AppNavigation() {
             }
 
             composable(Screen.Statistics.route) {
-                StatisticsScreen()
+                StatisticsScreen(viewModel = bookViewModel)
             }
 
             composable(Screen.AddBook.route) {

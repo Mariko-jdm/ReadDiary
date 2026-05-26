@@ -106,7 +106,7 @@ fun BookCard(
             Text(
                 text = author,
                 style = AppTypography.bodyMedium,
-                color = OnSurface.copy(alpha = 0.9f)
+                color = OnSurface
             )
 
             Spacer(

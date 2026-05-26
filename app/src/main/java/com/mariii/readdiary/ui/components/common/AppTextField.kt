@@ -22,7 +22,7 @@ fun AppTextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = {
-            Text(placeholder, color = OnSurface.copy(alpha = 0.9f))
+            Text(placeholder, color = OnSurface)
         },
         modifier = modifier,
         shape = RoundedCornerShape(Dimens.cornerRadius),

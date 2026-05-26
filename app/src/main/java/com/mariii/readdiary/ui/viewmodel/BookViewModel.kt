@@ -22,61 +22,43 @@ class BookViewModel(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
-
     fun addBook(book: Book) {
 
         viewModelScope.launch {
             repository.insertBook(book)
         }
     }
-
     fun updateBook(book: Book) {
 
         viewModelScope.launch {
             repository.updateBook(book)
         }
     }
-
     fun deleteBook(book: Book) {
 
         viewModelScope.launch {
             repository.deleteBook(book)
         }
     }
-
     fun addNoteToBook(
         bookId: Int,
         note: ReadingNote
     ) {
-
-        val currentBooks = books.value
-
-        val updatedBooks = currentBooks.map { book ->
-
-            if (book.id == bookId) {
-
-                book.copy(
-                    notes = book.notes + note
-                )
-
-            } else {
-                book
-            }
-        }
-
-        updatedBooks.forEach { updatedBook ->
-            updateBook(updatedBook)
-        }
+        val book = books.value.find {
+            it.id == bookId
+        } ?: return
+        updateBook(
+            book.copy(
+                notes = book.notes + note
+            )
+        )
     }
-
     fun updateReadingProgress(
         book: Book,
         newPage: Int,
         newStatus: ReadingStatus
     ) {
-
         viewModelScope.launch {
-
             repository.updateBook(
                 book.copy(
                     currentPage = newPage,

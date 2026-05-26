@@ -323,7 +323,7 @@ fun EditableBookContent(
 }
 
 @Composable
-private fun MinimalTextField(
+fun MinimalTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,

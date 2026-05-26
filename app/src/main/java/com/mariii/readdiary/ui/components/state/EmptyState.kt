@@ -41,7 +41,7 @@ fun EmptyState(
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.MenuBook,
             contentDescription = null,
-            tint = OnSurface.copy(alpha = 0.8f),
+            tint = OnSurface.copy(alpha = 0.9f),
             modifier = Modifier.size(48.dp)
         )
 

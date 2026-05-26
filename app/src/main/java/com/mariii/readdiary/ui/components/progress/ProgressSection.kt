@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.DropdownMenu
@@ -31,8 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mariii.readdiary.ui.components.book.MinimalTextField
 import com.mariii.readdiary.ui.theme.AppTypography
 import com.mariii.readdiary.ui.theme.Dimens
 import com.mariii.readdiary.ui.theme.OnSurface
@@ -47,7 +50,11 @@ fun ProgressSection(
     pagesRead: Int,
     goal: Int,
     goalProgress: Float,
-    reminderText: String
+    reminderText: String,
+    isEditingGoal: Boolean,
+    goalInput: String,
+    onGoalInputChange: (String) -> Unit,
+    onGoalEditClick: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedPeriod by remember { mutableStateOf("за год") }
@@ -134,15 +141,84 @@ fun ProgressSection(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             Text(
-                text = "Цель: $goal книг",
-                modifier = Modifier.weight(1f),
+                text = "Цель:",
                 style = AppTypography.bodyMedium,
                 color = OnSurface
             )
 
-            IconButton(onClick = {}) {
-                Icon(Icons.Default.Edit, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+
+            if (isEditingGoal) {
+
+                Box(
+                    modifier = Modifier.width(60.dp)
+                ) {
+
+                    MinimalTextField(
+
+                        value = goalInput,
+
+                        onValueChange = {
+
+                            onGoalInputChange(
+                                it.filter { char ->
+                                    char.isDigit()
+                                }
+                            )
+                        },
+
+                        placeholder = "введите новую цель",
+
+                        keyboardType = KeyboardType.Number
+                    )
+                }
+
+            } else {
+
+                Text(
+
+                    text = "$goal книг",
+
+                    modifier = Modifier.weight(1f),
+
+                    style = AppTypography.bodyMedium,
+
+                    color = OnSurface
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            if (isEditingGoal) {
+
+                IconButton(
+
+                    onClick = onGoalEditClick
+                ) {
+
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = null
+                    )
+                }
+
+            } else {
+
+                IconButton(
+
+                    onClick = {
+                        onGoalInputChange(goal.toString())
+                        onGoalEditClick()
+                    }
+                ) {
+
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = null
+                    )
+                }
             }
         }
 
@@ -234,7 +310,32 @@ fun ProgressSectionPreview() {
             pagesRead = 2450,
             goal = 20,
             goalProgress = 0.6f,
-            reminderText = "ежедневно в 12:00"
+            reminderText = "ежедневно в 12:00",
+
+            // новые параметры для редактирования цели
+            isEditingGoal = false,
+            goalInput = "20",
+            onGoalInputChange = {},
+            onGoalEditClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProgressSectionEditingPreview() {
+    ReadDiaryTheme {
+        ProgressSection(
+            booksRead = 12,
+            pagesRead = 2450,
+            goal = 20,
+            goalProgress = 0.6f,
+            reminderText = "ежедневно в 12:00",
+
+            isEditingGoal = true,
+            goalInput = "25",
+            onGoalInputChange = {},
+            onGoalEditClick = {}
         )
     }
 }
