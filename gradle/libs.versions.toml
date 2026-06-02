@@ -24,7 +24,13 @@ coil = "2.6.0"
 
 gson = "2.10.1"
 
+retrofit = "2.11.0"
+converter-gson = "2.11.0"
+
 [libraries]
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converter-gson" }
+
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }

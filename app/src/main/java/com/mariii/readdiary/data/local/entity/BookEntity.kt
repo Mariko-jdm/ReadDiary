@@ -6,24 +6,17 @@ import com.mariii.readdiary.domain.model.ReadingNote
 import com.mariii.readdiary.domain.model.ReadingStatus
 
 @Entity(tableName = "books")
-
 data class BookEntity(
-
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-
     val title: String,
     val author: String,
-
     val category: String,
     val rating: Int,
-
     val totalPages: Int,
     val currentPage: Int,
-
     val status: ReadingStatus,
-
     val coverUri: String = "",
-
     val notes: List<ReadingNote> = emptyList()
 )
+

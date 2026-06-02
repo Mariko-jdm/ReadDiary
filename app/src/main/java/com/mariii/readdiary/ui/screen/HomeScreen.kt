@@ -73,7 +73,15 @@ fun HomeScreen(
         it.status == ReadingStatus.READING
     }
 
-    var selectedBook by remember {
+//    var selectedBook by remember {
+//        mutableStateOf<Book?>(null)
+//    }
+
+    var selectedBookForProgress by remember {
+        mutableStateOf<Book?>(null)
+    }
+
+    var selectedBookForNote by remember {
         mutableStateOf<Book?>(null)
     }
 
@@ -97,25 +105,25 @@ fun HomeScreen(
         },
 
         onContinueClick = { book ->
-            selectedBook = book
+            selectedBookForProgress = book
         },
 
         onAddNoteClick = { book ->
 
-            selectedBook = book
+            selectedBookForNote = book
             showNoteDialog = true
         }
     )
 
     // диалог обновления прогресса
-    selectedBook?.let { book ->
+    selectedBookForProgress?.let { book ->
 
         UpdateProgressDialog(
 
             book = book,
 
             onDismiss = {
-                selectedBook = null
+                selectedBookForProgress = null
             },
 
             onConfirm = { page, status ->
@@ -126,7 +134,7 @@ fun HomeScreen(
                     newStatus = status
                 )
 
-                selectedBook = null
+                selectedBookForProgress = null
             }
         )
     }
@@ -138,12 +146,12 @@ fun HomeScreen(
 
             onDismiss = {
                 showNoteDialog = false
-                selectedBook = null
+                selectedBookForNote = null
             },
 
             onConfirm = { noteText ->
 
-                selectedBook?.let { book ->
+                selectedBookForNote?.let { book ->
 
                     val newNote = ReadingNote(
 
@@ -159,7 +167,7 @@ fun HomeScreen(
                 }
 
                 showNoteDialog = false
-                selectedBook = null
+                selectedBookForNote = null
             }
         )
     }

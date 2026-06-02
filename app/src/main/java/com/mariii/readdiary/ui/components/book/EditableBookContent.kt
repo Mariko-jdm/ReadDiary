@@ -87,7 +87,8 @@ fun EditableBookContent(
         "Психология",
         "Философия",
         "Саморазвитие",
-        "Классика"
+        "Классика",
+        "Другое"
     )
 
     val context = LocalContext.current
