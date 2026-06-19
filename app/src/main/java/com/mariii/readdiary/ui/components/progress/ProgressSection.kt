@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mariii.readdiary.ui.components.book.MinimalTextField
 import com.mariii.readdiary.ui.theme.AppTypography
@@ -41,7 +40,6 @@ import com.mariii.readdiary.ui.theme.Dimens
 import com.mariii.readdiary.ui.theme.OnSurface
 import com.mariii.readdiary.ui.theme.Outline
 import com.mariii.readdiary.ui.theme.Primary
-import com.mariii.readdiary.ui.theme.ReadDiaryTheme
 import com.mariii.readdiary.ui.theme.Surface
 
 @Composable
@@ -50,7 +48,16 @@ fun ProgressSection(
     pagesRead: Int,
     goal: Int,
     goalProgress: Float,
-    reminderText: String,
+
+    reminderTime: String,
+    reminderFrequency: String,
+
+    isEditingReminder: Boolean,
+    onReminderEditClick: () -> Unit,
+
+    onReminderTimeChange: (String) -> Unit,
+    onReminderFrequencyChange: (String) -> Unit,
+
     isEditingGoal: Boolean,
     goalInput: String,
     onGoalInputChange: (String) -> Unit,
@@ -58,6 +65,14 @@ fun ProgressSection(
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedPeriod by remember { mutableStateOf("за год") }
+
+    var hourExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var frequencyExpanded by remember {
+        mutableStateOf(false)
+    }
 
     Column(
         modifier = Modifier
@@ -243,18 +258,264 @@ fun ProgressSection(
         Spacer(modifier = Modifier.height(16.dp))
 
         // ---------- Напоминание ----------
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//
+//            Column(
+//                modifier = Modifier.weight(1f)
+//            ) {
+//
+//                if (isEditingReminder) {
+//
+//                    Text(
+//                        text = "Напоминание:",
+//                        style = AppTypography.bodyMedium,
+//                        color = OnSurface
+//                    )
+//
+//                    Spacer(
+//                        modifier = Modifier.height(4.dp)
+//                    )
+//
+//                    // Частота
+//                    Box {
+//
+//                        DropdownRow(
+//                            text = reminderFrequency,
+//                            onClick = {
+//                                frequencyExpanded = true
+//                            }
+//                        )
+//
+//                        DropdownMenu(
+//                            expanded = frequencyExpanded,
+//                            onDismissRequest = {
+//                                frequencyExpanded = false
+//                            }
+//                        ) {
+//
+//                            listOf(
+//                                "ежедневно",
+//                                "каждые 2 дня",
+//                                "каждые 3 дня",
+//                                "каждые 5 дней",
+//                                "каждые 7 дней"
+//                            ).forEach { option ->
+//
+//                                DropdownMenuItem(
+//                                    text = { Text(option) },
+//                                    onClick = {
+//
+//                                        onReminderFrequencyChange(option)
+//
+//                                        frequencyExpanded = false
+//                                    }
+//                                )
+//                            }
+//                        }
+//                    }
+//
+//                    Spacer(
+//                        modifier = Modifier.height(4.dp)
+//                    )
+//
+//                    // Время
+//                    Box {
+//
+//                        DropdownRow(
+//                            text = reminderTime,
+//                            onClick = {
+//                                hourExpanded = true
+//                            }
+//                        )
+//
+//                        DropdownMenu(
+//                            expanded = hourExpanded,
+//                            onDismissRequest = {
+//                                hourExpanded = false
+//                            }
+//                        ) {
+//
+//                            (12..22).forEach { hour ->
+//
+//                                val value =
+//                                    String.format("%02d:00", hour)
+//
+//                                DropdownMenuItem(
+//                                    text = { Text(value) },
+//                                    onClick = {
+//
+//                                        onReminderTimeChange(value)
+//
+//                                        hourExpanded = false
+//                                    }
+//                                )
+//                            }
+//                        }
+//                    }
+//
+//                } else {
+//
+//                    Text(
+//                        text = "Напоминание: $reminderFrequency в $reminderTime",
+//                        style = AppTypography.bodyMedium,
+//                        color = OnSurface
+//                    )
+//                }
+//            }
+//
+//            IconButton(
+//                onClick = onReminderEditClick
+//            ) {
+//
+//                Icon(
+//                    imageVector =
+//                        if (isEditingReminder)
+//                            Icons.Default.Check
+//                        else
+//                            Icons.Default.Edit,
+//                    contentDescription = null
+//                )
+//            }
+//        }
+//    }
+//}
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             Text(
-                text = "Напоминание: $reminderText",
-                modifier = Modifier.weight(1f),
+                text = "Напоминание:",
                 style = AppTypography.bodyMedium,
                 color = OnSurface
             )
 
-            IconButton(onClick = {}) {
-                Icon(Icons.Default.Edit, contentDescription = null)
+            Spacer(
+                modifier = Modifier.width(8.dp)
+            )
+
+            if (isEditingReminder) {
+
+                // Частота
+
+                Box {
+
+                    Text(
+                        text = reminderFrequency,
+                        modifier = Modifier.clickable {
+                            frequencyExpanded = true
+                        },
+                        color = OnSurface
+                    )
+
+                    DropdownMenu(
+                        expanded = frequencyExpanded,
+                        onDismissRequest = {
+                            frequencyExpanded = false
+                        }
+                    ) {
+
+                        listOf(
+                            "ежедневно",
+                            "каждые 2 дня",
+                            "каждые 3 дня",
+                            "каждые 5 дней",
+                            "каждые 7 дней"
+                        ).forEach { option ->
+
+                            DropdownMenuItem(
+                                text = { Text(option) },
+                                onClick = {
+
+                                    onReminderFrequencyChange(option)
+
+                                    frequencyExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+
+                Text(
+                    text = "в",
+                    color = OnSurface
+                )
+
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+
+                // Время
+
+                Box {
+
+                    Text(
+                        text = reminderTime,
+                        modifier = Modifier.clickable {
+                            hourExpanded = true
+                        },
+                        color = OnSurface
+                    )
+
+                    DropdownMenu(
+                        expanded = hourExpanded,
+                        onDismissRequest = {
+                            hourExpanded = false
+                        }
+                    ) {
+
+                        (12..21).forEach { hour ->
+
+                            val value =
+                                String.format("%02d:00", hour)
+
+                            DropdownMenuItem(
+                                text = {
+                                    Text(value)
+                                },
+
+                                onClick = {
+
+                                    onReminderTimeChange(value)
+
+                                    hourExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(
+                    modifier = Modifier.weight(1f)
+                )
+
+            } else {
+
+                Text(
+                    text = "$reminderFrequency в $reminderTime",
+                    modifier = Modifier.weight(1f),
+                    style = AppTypography.bodyMedium,
+                    color = OnSurface
+                )
+            }
+
+            IconButton(
+                onClick = onReminderEditClick
+            ) {
+
+                Icon(
+                    imageVector =
+                        if (isEditingReminder)
+                            Icons.Default.Check
+                        else
+                            Icons.Default.Edit,
+                    contentDescription = null
+                )
             }
         }
     }
@@ -301,41 +562,41 @@ fun SimpleBarChart() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ProgressSectionPreview() {
-    ReadDiaryTheme {
-        ProgressSection(
-            booksRead = 12,
-            pagesRead = 2450,
-            goal = 20,
-            goalProgress = 0.6f,
-            reminderText = "ежедневно в 12:00",
+//@Preview(showBackground = true)
+//@Composable
+//fun ProgressSectionPreview() {
+//    ReadDiaryTheme {
+//        ProgressSection(
+//            booksRead = 12,
+//            pagesRead = 2450,
+//            goal = 20,
+//            goalProgress = 0.6f,
+//            reminderText = "ежедневно в 12:00",
+//
+//            // новые параметры для редактирования цели
+//            isEditingGoal = false,
+//            goalInput = "20",
+//            onGoalInputChange = {},
+//            onGoalEditClick = {}
+//        )
+//    }
+//}
 
-            // новые параметры для редактирования цели
-            isEditingGoal = false,
-            goalInput = "20",
-            onGoalInputChange = {},
-            onGoalEditClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ProgressSectionEditingPreview() {
-    ReadDiaryTheme {
-        ProgressSection(
-            booksRead = 12,
-            pagesRead = 2450,
-            goal = 20,
-            goalProgress = 0.6f,
-            reminderText = "ежедневно в 12:00",
-
-            isEditingGoal = true,
-            goalInput = "25",
-            onGoalInputChange = {},
-            onGoalEditClick = {}
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun ProgressSectionEditingPreview() {
+//    ReadDiaryTheme {
+//        ProgressSection(
+//            booksRead = 12,
+//            pagesRead = 2450,
+//            goal = 20,
+//            goalProgress = 0.6f,
+//            reminderText = "ежедневно в 12:00",
+//
+//            isEditingGoal = true,
+//            goalInput = "25",
+//            onGoalInputChange = {},
+//            onGoalEditClick = {}
+//        )
+//    }
+//}

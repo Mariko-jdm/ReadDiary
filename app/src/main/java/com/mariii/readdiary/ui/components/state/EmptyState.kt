@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,15 +19,12 @@ import androidx.compose.ui.unit.dp
 import com.mariii.readdiary.ui.theme.AppTypography
 import com.mariii.readdiary.ui.theme.Dimens
 import com.mariii.readdiary.ui.theme.OnSurface
-import com.mariii.readdiary.ui.theme.Primary
 import com.mariii.readdiary.ui.theme.ReadDiaryTheme
 
 @Composable
 fun EmptyState(
     text: String,
     modifier: Modifier = Modifier,
-    buttonText: String? = null,
-    onClick: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier
@@ -41,7 +37,7 @@ fun EmptyState(
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.MenuBook,
             contentDescription = null,
-            tint = OnSurface.copy(alpha = 0.9f),
+            tint = OnSurface,
             modifier = Modifier.size(48.dp)
         )
 
@@ -50,32 +46,18 @@ fun EmptyState(
         Text(
             text = text,
             style = AppTypography.bodyMedium,
-            color = OnSurface.copy(alpha = 0.9f)
+            color = OnSurface
         )
-
-        //  опциональная кнопка
-        if (buttonText != null && onClick != null) {
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            TextButton(onClick = onClick) {
-                Text(
-                    text = buttonText,
-                    color = Primary
-                )
-            }
         }
     }
-}
+
 
 @Preview(showBackground = true)
 @Composable
 fun EmptyStatePreview() {
     ReadDiaryTheme {
         EmptyState(
-            text = "у вас пока нет книг",
-            buttonText = "добавить книгу",
-            onClick = {}
+            text = "у вас пока нет книг"
         )
     }
 }

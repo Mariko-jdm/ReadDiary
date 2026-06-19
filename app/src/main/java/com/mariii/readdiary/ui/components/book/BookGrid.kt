@@ -127,7 +127,7 @@ private fun BookGridItem(
         Text(
             text = book.author,
             style = AppTypography.bodySmall,
-            color = OnSurface.copy(alpha = 0.9f),
+            color = OnSurface,
             maxLines = 1
         )
     }

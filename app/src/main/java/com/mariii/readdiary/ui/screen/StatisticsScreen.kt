@@ -3,12 +3,8 @@
 package com.mariii.readdiary.ui.screen
 
 import android.content.Context
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -30,17 +26,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.mariii.readdiary.R
 import com.mariii.readdiary.domain.model.ReadingStatus
+import com.mariii.readdiary.notifications.ReminderScheduler
 import com.mariii.readdiary.ui.components.progress.ProgressSection
 import com.mariii.readdiary.ui.theme.Background
 import com.mariii.readdiary.ui.theme.Dimens
 import com.mariii.readdiary.ui.theme.OnBackground
-import com.mariii.readdiary.ui.theme.ReadDiaryTheme
-import com.mariii.readdiary.ui.theme.Surface
 import com.mariii.readdiary.ui.viewmodel.BookViewModel
 
 @Composable
@@ -93,6 +86,30 @@ fun StatisticsScreen(
         finishedBooks.toFloat() / yearlyGoal.toFloat()
     } else 0f
 
+    var isEditingReminder by remember {
+        mutableStateOf(false)
+    }
+
+    var reminderTime by rememberSaveable {
+
+        mutableStateOf(
+            prefs.getString(
+                "reminder_time",
+                "12:00"
+            ) ?: "12:00"
+        )
+    }
+
+    var reminderFrequency by rememberSaveable {
+
+        mutableStateOf(
+            prefs.getString(
+                "reminder_frequency",
+                "Ежедневно"
+            ) ?: "Ежедневно"
+        )
+    }
+
     Scaffold(
         containerColor = Background,
         topBar = {
@@ -122,7 +139,6 @@ fun StatisticsScreen(
                 pagesRead = pagesRead,
                 goal = yearlyGoal,
                 goalProgress = goalProgress.coerceIn(0f, 1f),
-                reminderText = "ежедневно в 12:00",
                 isEditingGoal = isEditingGoal,
                 goalInput = goalInput,
                 onGoalInputChange = { goalInput = it },
@@ -136,65 +152,102 @@ fun StatisticsScreen(
                         goalInput = yearlyGoal.toString()
                     }
                     isEditingGoal = !isEditingGoal
-                }
+                },
+
+                reminderTime = reminderTime,
+
+                reminderFrequency = reminderFrequency,
+
+                isEditingReminder = isEditingReminder,
+
+                onReminderTimeChange = {
+                    reminderTime = it
+                },
+
+                onReminderFrequencyChange = {
+                    reminderFrequency = it
+                },
+
+                onReminderEditClick = {
+
+                    if (isEditingReminder) {
+
+                        prefs.edit {
+
+                            putString(
+                                "reminder_time",
+                                reminderTime
+                            )
+
+                            putString(
+                                "reminder_frequency",
+                                reminderFrequency
+                            )
+                        }
+                    }
+
+                    ReminderScheduler.scheduleReminder(context)
+
+                    isEditingReminder = !isEditingReminder
+                },
             )
         }
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun StatisticsScreenPreview() {
-    ReadDiaryTheme {
-        Scaffold(
-            containerColor = Background,
-            topBar = {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.statistics), color = OnBackground) },
-                    navigationIcon = {
-                        IconButton(onClick = {}) {
-                            Icon(Icons.Default.Menu, contentDescription = "menu")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Background
-                    )
-                )
-            },
-            bottomBar = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                        .background(Surface)
-                )
-            }
-        ) { padding ->
-
-            Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .padding(
-                        start = Dimens.paddingMedium,
-                        end = Dimens.paddingMedium,
-                        bottom = 80.dp
-                    )
-            ) {
-
-                ProgressSection(
-                    booksRead = 12,
-                    pagesRead = 2450,
-                    goal = 20,
-                    goalProgress = 0.55f,
-                    reminderText = "ежедневно в 12:00",
-
-                    // новые параметры
-                    isEditingGoal = false,
-                    goalInput = "20",
-                    onGoalInputChange = {},
-                    onGoalEditClick = {}
-                )
-            }
-        }
-    }
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun StatisticsScreenPreview() {
+//    ReadDiaryTheme {
+//        Scaffold(
+//            containerColor = Background,
+//            topBar = {
+//                TopAppBar(
+//                    title = { Text(stringResource(R.string.statistics), color = OnBackground) },
+//                    navigationIcon = {
+//                        IconButton(onClick = {}) {
+//                            Icon(Icons.Default.Menu, contentDescription = "menu")
+//                        }
+//                    },
+//                    colors = TopAppBarDefaults.topAppBarColors(
+//                        containerColor = Background
+//                    )
+//                )
+//            },
+//            bottomBar = {
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(60.dp)
+//                        .background(Surface)
+//                )
+//            }
+//        ) { padding ->
+//
+//            Column(
+//                modifier = Modifier
+//                    .padding(padding)
+//                    .padding(
+//                        start = Dimens.paddingMedium,
+//                        end = Dimens.paddingMedium,
+//                        bottom = 80.dp
+//                    )
+//            ) {
+//
+//                ProgressSection(
+//                    booksRead = 12,
+//                    pagesRead = 2450,
+//                    goal = 20,
+//                    goalProgress = 0.55f,
+//                    reminderText = "ежедневно в 12:00",
+//
+//                    // новые параметры
+//                    isEditingGoal = false,
+//                    goalInput = "20",
+//                    onGoalInputChange = {},
+//                    onGoalEditClick = {}
+//                )
+//            }
+//        }
+//    }
+//}

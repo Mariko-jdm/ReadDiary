@@ -55,6 +55,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(libs.androidx.work.runtime)
+
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 

@@ -36,8 +36,8 @@ fun BottomBar(
         selectedIconColor = OnSurface,
         selectedTextColor = OnSurface,
 
-        unselectedIconColor = OnSurface.copy(alpha = 0.9f),
-        unselectedTextColor = OnSurface.copy(alpha = 0.9f)
+        unselectedIconColor = OnSurface,
+        unselectedTextColor = OnSurface
     )
 
     NavigationBar(

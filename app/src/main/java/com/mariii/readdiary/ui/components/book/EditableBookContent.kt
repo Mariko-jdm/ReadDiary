@@ -330,7 +330,8 @@ fun MinimalTextField(
     placeholder: String,
     keyboardType: KeyboardType = KeyboardType.Text,
     textStyle: androidx.compose.ui.text.TextStyle = AppTypography.bodyMedium,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+
 ) {
 
     BasicTextField(
@@ -353,7 +354,8 @@ fun MinimalTextField(
                 Text(
                     text = placeholder,
                     style = textStyle,
-                    color = OnSurface.copy(alpha = 0.9f)
+                    color = OnSurface,
+
                 )
             }
 
